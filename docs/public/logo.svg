@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <rect width="48" height="48" rx="6" fill="#0a0a0a"/>
+  <rect x="4" y="4" width="40" height="40" rx="4" fill="none" stroke="#00cc66" stroke-width="1" opacity="0.3"/>
+  <text x="8" y="20" font-family="monospace" font-size="9" font-weight="bold" fill="#00cc66" letter-spacing="0">NTH</text>
+  <text x="8" y="32" font-family="monospace" font-size="9" font-weight="bold" fill="#00cc66" letter-spacing="0">BRW</text>
+  <circle cx="36" cy="36" r="5" fill="none" stroke="#00cc66" stroke-width="1.5"/>
+  <line x1="39.5" y1="39.5" x2="43" y2="43" stroke="#00cc66" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

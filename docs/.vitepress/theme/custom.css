@@ -1,0 +1,593 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOTHING BROWSER DOCS — Custom Theme
+   Dark terminal aesthetic. Monospace + geometric sans hybrid.
+   Ernest Tech House · Coded by Pease Ernest
+═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ── Root token overrides ───────────────────────────────────────────────── */
+:root {
+  --vp-font-family-base: 'Space Grotesk', sans-serif;
+  --vp-font-family-mono: 'JetBrains Mono', monospace;
+
+  /* Brand */
+  --vp-c-brand-1: #00cc66;
+  --vp-c-brand-2: #00aa55;
+  --vp-c-brand-3: #008844;
+  --vp-c-brand-soft: rgba(0, 204, 102, 0.08);
+
+  /* Backgrounds */
+  --vp-c-bg: #0a0a0a;
+  --vp-c-bg-soft: #111111;
+  --vp-c-bg-mute: #161616;
+  --vp-c-bg-elv: #141414;
+  --vp-c-bg-alt: #0d0d0d;
+
+  /* Borders */
+  --vp-c-border: #1e1e1e;
+  --vp-c-divider: #1a1a1a;
+  --vp-c-gutter: #0d0d0d;
+
+  /* Text */
+  --vp-c-text-1: #d4d4d4;
+  --vp-c-text-2: #888888;
+  --vp-c-text-3: #555555;
+
+  /* Code */
+  --vp-code-bg: #111111;
+  --vp-code-color: #00cc66;
+  --vp-code-block-bg: #0d0d0d;
+
+  /* Nav */
+  --vp-nav-bg-color: rgba(10, 10, 10, 0.95);
+  --vp-nav-height: 60px;
+
+  /* Sidebar */
+  --vp-sidebar-bg-color: #0a0a0a;
+  --vp-sidebar-width: 260px;
+
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #1e1e1e #0a0a0a;
+}
+
+/* Dark mode (same — we always dark) */
+.dark {
+  --vp-c-bg: #0a0a0a;
+  --vp-c-bg-soft: #111111;
+  --vp-c-bg-mute: #161616;
+}
+
+/* ── Global base ────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; }
+
+html { background: #0a0a0a; }
+
+body {
+  background: #0a0a0a !important;
+  color: #d4d4d4;
+  font-feature-settings: 'ss01', 'ss02';
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
+
+/* ── Nav bar ────────────────────────────────────────────────────────────── */
+.VPNav {
+  background: rgba(10, 10, 10, 0.96) !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  backdrop-filter: blur(12px);
+}
+
+.VPNavBar {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+.VPNavBarTitle .title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-weight: 700;
+  font-size: 14px;
+  color: #00cc66 !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.VPNavBarMenuLink {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #555 !important;
+  transition: color 0.2s;
+}
+
+.VPNavBarMenuLink:hover,
+.VPNavBarMenuLink.active {
+  color: #00cc66 !important;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+.VPSidebar {
+  background: #0a0a0a !important;
+  border-right: 1px solid #1a1a1a !important;
+  padding-top: 24px !important;
+}
+
+.VPSidebarItem .text {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.5px;
+  color: #444 !important;
+  transition: color 0.15s;
+}
+
+.VPSidebarItem.is-active > .item .text,
+.VPSidebarItem:hover > .item .text {
+  color: #00cc66 !important;
+}
+
+.VPSidebarItem.level-0 > .item .text {
+  font-weight: 700 !important;
+  font-size: 9px !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #2a2a2a !important;
+  margin-top: 8px;
+}
+
+.VPSidebarItem.is-active > .item .indicator {
+  background: #00cc66 !important;
+}
+
+/* ── Content ────────────────────────────────────────────────────────────── */
+.VPContent {
+  background: #0a0a0a !important;
+}
+
+.VPDoc {
+  padding-top: 32px !important;
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+.vp-doc h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  border-bottom: 1px solid #1a1a1a;
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+  line-height: 1.2;
+}
+
+.vp-doc h1::before {
+  content: '> ';
+  color: #00cc66;
+  font-size: 1.8rem;
+}
+
+.vp-doc h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #00cc66;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-top: 1px solid #1a1a1a;
+  border-bottom: none !important;
+  padding-top: 24px;
+  padding-bottom: 0;
+  margin-top: 48px;
+  margin-bottom: 20px;
+}
+
+.vp-doc h2::before {
+  content: '── ';
+  color: #1e1e1e;
+}
+
+.vp-doc h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #cccccc;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.vp-doc p {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #888;
+}
+
+.vp-doc a {
+  color: #00cc66 !important;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 204, 102, 0.2);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.vp-doc a:hover {
+  border-bottom-color: #00cc66;
+}
+
+/* ── Code ───────────────────────────────────────────────────────────────── */
+.vp-doc :not(pre) > code {
+  background: #111 !important;
+  color: #00cc66 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  padding: 2px 7px !important;
+  border-radius: 3px !important;
+  border: 1px solid #1e1e1e !important;
+}
+
+.vp-doc div[class*='language-'] {
+  background: #0d0d0d !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 4px !important;
+  margin: 20px 0 !important;
+  position: relative;
+}
+
+.vp-doc div[class*='language-']::before {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #333;
+  text-transform: uppercase;
+  position: absolute;
+  top: 10px;
+  right: 14px;
+}
+
+.vp-doc div[class*='language-bash']::before { content: 'TERMINAL'; }
+.vp-doc div[class*='language-python']::before { content: 'PYTHON'; }
+.vp-doc div[class*='language-cpp']::before { content: 'C++'; }
+.vp-doc div[class*='language-js']::before { content: 'JAVASCRIPT'; }
+.vp-doc div[class*='language-sh']::before { content: 'SHELL'; }
+
+.vp-doc div[class*='language-'] pre {
+  padding: 20px 24px !important;
+}
+
+.vp-doc div[class*='language-'] code {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  line-height: 1.7 !important;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.vp-doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  border: 1px solid #1e1e1e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vp-doc table thead tr {
+  background: #111 !important;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.vp-doc table thead th {
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 9px;
+  color: #444;
+  border: none;
+}
+
+.vp-doc table tbody tr {
+  border-bottom: 1px solid #141414;
+  transition: background 0.15s;
+}
+
+.vp-doc table tbody tr:hover {
+  background: #111 !important;
+}
+
+.vp-doc table tbody td {
+  padding: 10px 16px;
+  color: #888;
+  border: none;
+  vertical-align: top;
+}
+
+.vp-doc table tbody td:first-child {
+  color: #d4d4d4;
+  font-weight: 600;
+}
+
+/* ── Blockquotes / Tips ─────────────────────────────────────────────────── */
+.vp-doc blockquote {
+  border-left: 2px solid #00cc66 !important;
+  background: rgba(0, 204, 102, 0.04) !important;
+  padding: 12px 20px !important;
+  margin: 20px 0 !important;
+  border-radius: 0 4px 4px 0;
+}
+
+.vp-doc blockquote p {
+  color: #00cc66 !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  margin: 0 !important;
+}
+
+/* Custom containers */
+.custom-block {
+  border: 1px solid #1e1e1e !important;
+  border-radius: 4px !important;
+  background: #0d0d0d !important;
+  margin: 20px 0;
+}
+
+.custom-block.tip {
+  border-left: 3px solid #00cc66 !important;
+}
+
+.custom-block.warning {
+  border-left: 3px solid #ffaa00 !important;
+}
+
+.custom-block.danger {
+  border-left: 3px solid #ff4444 !important;
+}
+
+.custom-block.info {
+  border-left: 3px solid #0088ff !important;
+}
+
+.custom-block-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── Home page hero ─────────────────────────────────────────────────────── */
+.VPHero {
+  background: #0a0a0a !important;
+  padding: 80px 24px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.VPHero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 39px,
+      rgba(0, 204, 102, 0.02) 39px,
+      rgba(0, 204, 102, 0.02) 40px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 39px,
+      rgba(0, 204, 102, 0.02) 39px,
+      rgba(0, 204, 102, 0.02) 40px
+    );
+  pointer-events: none;
+}
+
+.VPHero::after {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 204, 102, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.VPHero .name {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 3.5rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -1px;
+  line-height: 1.1 !important;
+}
+
+.VPHero .name .clip {
+  background: linear-gradient(135deg, #00cc66, #00ff88, #00aa55) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.VPHero .tagline {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1rem !important;
+  color: #444 !important;
+  margin-top: 16px;
+  letter-spacing: 0.5px;
+}
+
+.VPHero .tagline::before {
+  content: '// ';
+  color: #00cc66;
+}
+
+/* Hero buttons */
+.VPButton.brand {
+  background: #00cc66 !important;
+  border-color: #00cc66 !important;
+  color: #000 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 3px !important;
+  padding: 10px 24px !important;
+  transition: all 0.2s !important;
+}
+
+.VPButton.brand:hover {
+  background: #00ff88 !important;
+  border-color: #00ff88 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 204, 102, 0.3);
+}
+
+.VPButton.alt {
+  background: transparent !important;
+  border: 1px solid #1e1e1e !important;
+  color: #888 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 3px !important;
+  padding: 10px 24px !important;
+  transition: all 0.2s !important;
+}
+
+.VPButton.alt:hover {
+  border-color: #00cc66 !important;
+  color: #00cc66 !important;
+}
+
+/* ── Features section (home) ────────────────────────────────────────────── */
+.VPFeature {
+  background: #0d0d0d !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 4px !important;
+  transition: border-color 0.2s, transform 0.2s !important;
+}
+
+.VPFeature:hover {
+  border-color: #00cc66 !important;
+  transform: translateY(-2px);
+}
+
+.VPFeature .title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: 0.5px;
+}
+
+.VPFeature .details {
+  font-size: 13px !important;
+  color: #555 !important;
+  line-height: 1.6 !important;
+}
+
+.VPFeatures {
+  background: #0a0a0a !important;
+  padding: 40px 24px !important;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.VPFooter {
+  background: #0a0a0a !important;
+  border-top: 1px solid #1a1a1a !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: #333 !important;
+}
+
+/* ── Search ─────────────────────────────────────────────────────────────── */
+.VPLocalSearchBox {
+  background: #0d0d0d !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 6px !important;
+}
+
+.VPNavBarSearch .DocSearch-Button {
+  background: #111 !important;
+  border: 1px solid #1e1e1e !important;
+  border-radius: 3px !important;
+}
+
+/* ── Aside / TOC ────────────────────────────────────────────────────────── */
+.VPDocAsideOutline .outline-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #333 !important;
+}
+
+.VPDocAsideOutline a {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 11px !important;
+  color: #444 !important;
+  border: none !important;
+  transition: color 0.15s;
+}
+
+.VPDocAsideOutline a:hover,
+.VPDocAsideOutline a.active {
+  color: #00cc66 !important;
+}
+
+/* ── Prev/Next nav ──────────────────────────────────────────────────────── */
+.VPDocFooter .pager-link {
+  background: #0d0d0d !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 4px !important;
+  transition: border-color 0.2s !important;
+}
+
+.VPDocFooter .pager-link:hover {
+  border-color: #00cc66 !important;
+}
+
+.VPDocFooter .title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  color: #00cc66 !important;
+}
+
+/* ── Badge ──────────────────────────────────────────────────────────────── */
+.VPBadge {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 1px;
+  border-radius: 2px !important;
+}
+
+/* ── Misc clean-ups ─────────────────────────────────────────────────────── */
+.VPDoc .header-anchor {
+  color: #1e1e1e !important;
+}
+
+.VPDoc .header-anchor:hover {
+  color: #00cc66 !important;
+}
+
+hr {
+  border-color: #1a1a1a !important;
+}
+
+/* Force dark on everything */
+.VPNav, .VPSidebar, .VPContent, .VPFooter,
+.VPLocalNav, .VPDocAsideCarbonAds {
+  background: #0a0a0a !important;
+}
