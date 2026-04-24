@@ -16,6 +16,23 @@ I'm a solo developer. I have limited time. I'm very picky about what goes into t
 
 ---
 
+## PR Response Time
+
+I live in **Kenya (East Africa Time - EAT)** . I work on Nothing Browser during night hours after my day job.
+
+| Action | Response Time |
+|--------|---------------|
+| PR opened | 14-20 hours (next night session) |
+| PR reviewed | 14-20 hours |
+| PR merged or closed | 14-20 hours |
+| Issue opened | 14-20 hours |
+
+**Don't expect instant responses.** I'll get to it when I get to it. Usually the same night or the next.
+
+If you haven't heard back in 48 hours, ping me on Discord.
+
+---
+
 ## For Nothing Browser (UI): C++ Knowledge Required
 
 The Nothing Browser UI is written in **C++ using Qt6 WebEngine**. It **breaks easily**.
@@ -95,6 +112,8 @@ These files are **critical** to browser functionality. Touch them = instant reje
 | Keyboard shortcuts | ✅ Merge | New shortcuts, fixes |
 
 **If you make the tabs more curved?** Yeah, ok, we'll merge it.
+
+> **Note:** Qt CSS is a different version of CSS. Test your changes thoroughly.
 
 ### Bug Fixes (Merge Fast)
 
@@ -190,6 +209,19 @@ If you create a community library:
 - ✅ **You maintain it** — bug fixes, updates, documentation
 - ✅ **You keep it up to date** — when Piggy adds new features, you add them
 - ✅ **You handle issues** — users will come to you
+
+### 🐍 Special Note About Python
+
+**If a high-quality Python wrapper emerges from the community, Ernest Tech House will not create an official Python client.**
+
+We believe in community-driven development. If you build a good Python wrapper:
+
+- ✅ We will feature it prominently in our README
+- ✅ We will recommend it to Python users
+- ✅ We will send TypeScript users your way for Python questions
+- ❌ We will not compete with you by building our own
+
+**This applies to any language.** If the community builds and maintains a solid wrapper, we focus our limited time elsewhere.
 
 ### How to Get Your Library Accepted
 
@@ -324,15 +356,49 @@ So if you send a PR adding `site.newFunction()` to the library, I will ask:
 
 ### Official Clients Timeline
 
-| Language | Official Release | Who Builds |
-|----------|------------------|------------|
-| TypeScript/Bun | ✅ v0.1.0 | Ernest Tech House |
-| Python | 📋 v0.7.0 | Ernest Tech House |
-| Go | 📋 v0.8.0 | Ernest Tech House |
-| Java | 📋 v0.9.0 | Ernest Tech House |
-| Rust | 📋 v1.0.0 | Ernest Tech House |
+| Language | Official Release | Who Builds | Notes |
+|----------|------------------|------------|-------|
+| TypeScript/Bun | ✅ v0.1.0 | Ernest Tech House | Primary client |
+| Python | 📋 v0.7.0 | **CANCELLED if community wrapper exists** | See note below |
+| Go | 📋 v0.8.0 | Ernest Tech House | Proceeding |
+| Java | 📋 v0.9.0 | Ernest Tech House | Proceeding |
+| Rust | 📋 v1.0.0 | Ernest Tech House | Proceeding |
 
-**Until official releases are ready, community clients are welcome and will be featured.**
+### ⚠️ Python Official Release Policy
+
+**If a high-quality community Python wrapper is released and maintained, the official Python client (planned for v0.7.0) will be cancelled.**
+
+Why?
+
+- Limited development time
+- Community solutions are often better (maintained by people who actually use Python daily)
+- No point in duplicating work
+
+**So if you want an official Python client from us... build a great community one first.** Then we won't need to.
+
+This applies to any language where a strong community client emerges before our official release date.
+
+---
+
+## Three Repositories
+
+Nothing Browser spans three GitHub repositories:
+
+| Repository | Language | Purpose |
+|------------|----------|---------|
+| `nothing-browser` (core) | C++ | The browser binary |
+| `nothing-browser-docs` | Markdown | Documentation site |
+| `piggy` (library) | TypeScript | Node/Bun client library |
+
+### PRs Across Repositories
+
+| Repository | PR Response | Merge Policy |
+|------------|-------------|--------------|
+| `nothing-browser` (core) | 14-20 hours | Strict (C++ must be correct) |
+| `nothing-browser-docs` | 14-20 hours | Lenient (typos = merge) |
+| `piggy` (library) | 14-20 hours | Moderate (depends on change) |
+
+**PRs in any of the three repos are either closed or merged within 14-20 hours** (my next night session after opening).
 
 ---
 
@@ -391,18 +457,18 @@ list.push_back("item");
 
 | PR Type | Review Time | Decision |
 |---------|-------------|----------|
-| Bug fix (C++) | 1-3 days | ✅ Likely merge |
-| Bug fix (TypeScript) | 1-2 days | ✅ Merge |
-| Documentation | 1-2 days | ✅ Merge |
-| UI change (tabs, icons) | 2-5 days | ✅ Likely merge |
-| New feature (with binary) | 3-7 days | 🤷 Depends |
-| New feature (without binary) | 1 hour | ❌ Reject |
-| Community library submission | 2-5 days | ✅ Likely accept |
-| Touch fingerprintspoofer.cpp | 1 minute | ❌ Reject |
-| Touch identitygenerator.cpp | 1 minute | ❌ Reject |
-| Touch human/index.ts | 1 minute | ❌ Reject |
-| Add settings to Private Browser | 1 minute | ❌ Reject |
-| Replace Elysia | 1 minute | ❌ Reject |
+| Bug fix (C++) | 14-20 hours | ✅ Likely merge |
+| Bug fix (TypeScript) | 14-20 hours | ✅ Merge |
+| Documentation | 14-20 hours | ✅ Merge |
+| UI change (tabs, icons) | 14-20 hours | ✅ Likely merge |
+| New feature (with binary) | 14-20 hours | 🤷 Depends |
+| New feature (without binary) | 14-20 hours | ❌ Reject |
+| Community library submission | 14-20 hours | ✅ Likely accept |
+| Touch fingerprintspoofer.cpp | 14-20 hours | ❌ Reject |
+| Touch identitygenerator.cpp | 14-20 hours | ❌ Reject |
+| Touch human/index.ts | 14-20 hours | ❌ Reject |
+| Add settings to Private Browser | 14-20 hours | ❌ Reject |
+| Replace Elysia | 14-20 hours | ❌ Reject |
 
 ---
 
@@ -454,6 +520,8 @@ Before submitting a PR, ask:
 
 I'm responsive. Just don't ask "can you add Express support?" because the answer is no.
 
+**Remember:** I respond within 14-20 hours (next night session EAT). Don't expect instant replies.
+
 ---
 
 ## The Bottom Line
@@ -475,6 +543,8 @@ I built Nothing Browser because I wanted a tool that works. I'm protective of th
 | **New features** | Convince me. Need binary change. |
 | **Express/Fastify** | No. Never. Elysia stays. |
 | **Community language libs** | You build it. You maintain it. |
+| **Python official client** | Cancelled if community wrapper exists |
+| **PR response time** | 14-20 hours (EAT night hours) |
 
 **If you're cool with that, welcome aboard.**
 
@@ -490,4 +560,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 — Pease Ernest
 
-*P.S. If you make the tabs more curved, I will literally merge it within the hour. Qt css is a diffrent version of css*
+*P.S. If you make the tabs more curved, I will literally merge it within the hour (next night session). Qt CSS is a different version of CSS.*

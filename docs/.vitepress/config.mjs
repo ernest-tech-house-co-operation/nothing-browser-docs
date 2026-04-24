@@ -26,6 +26,7 @@ export default defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/what-is-nothing' },
       { text: 'Piggy API', link: '/piggy/' },
+      { text: 'Legal', link: '/privacypolicy' },
       { text: 'v0.1.3', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
     ],
     
@@ -103,6 +104,9 @@ export default defineConfig({
             { text: '🚫 Anti-Detection', link: '/guide/piggy/anti-detection' },
             { text: '🚀 Built-in API Server', link: '/guide/piggy/api-server' },
             { text: '📦 Middleware', link: '/guide/piggy/middleware' },
+            { text: '🏷️ Typed Sites (usePiggy)', link: '/guide/piggy/typed-sites' },
+            { text: '🏊 Tab Pooling', link: '/guide/piggy/tab-pooling' },
+            { text: '💾 Data Storage (site.store)', link: '/guide/piggy/data-storage' },
             { text: '📝 Full API Reference', link: '/guide/piggy/api-reference' },
             { text: '📘 TypeScript Types', link: '/guide/piggy/types' }
           ]
@@ -115,6 +119,15 @@ export default defineConfig({
             { text: 'How exposeFunction Works', link: '/guide/technical/expose-function-internals' },
             { text: 'Build from Source', link: '/guide/technical/build-from-source' },
             { text: 'Limitations', link: '/guide/technical/limitations' }
+          ]
+        },
+        {
+          text: 'Legal',
+          collapsed: true,
+          items: [
+            { text: 'Privacy Policy', link: '/privacypolicy' },
+            { text: 'Terms of Service', link: '/termsofservice' },
+            { text: 'Acceptable Use Policy', link: '/acceptableuse' }
           ]
         },
         {

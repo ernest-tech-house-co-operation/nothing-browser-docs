@@ -1,7 +1,10 @@
-
 # 🌐 Multi-Site Parallel
 
 Control multiple browser tabs or processes simultaneously. Run operations in parallel, compare results across sites, and scale your scraping.
+
+---
+
+> **Related:** For concurrent requests to the **same** site, see [Tab Pooling](./tab-pooling) instead.
 
 ---
 
@@ -13,6 +16,23 @@ Piggy supports two modes for multi-site operations:
 |------|-------------|----------|
 | **Tab Mode** | Single browser, multiple tabs | Lightweight, shared cookies/session |
 | **Process Mode** | Separate browser per site | Isolation, different profiles/proxies |
+
+## Tab Pooling vs Multi-Site
+
+| Need | Solution | Documentation |
+|------|----------|---------------|
+| Multiple **different** sites | Multi-Site (this doc) | [`piggy.all()`](#parallel-operations-with-all) |
+| Multiple concurrent requests to **same** site | Tab Pooling | [Tab Pooling Guide](./tab-pooling) |
+
+```ts
+// Multiple different sites - use multi-site
+await piggy.register("amazon", "...");
+await piggy.register("ebay", "...");
+await piggy.register("walmart", "...");
+
+// Multiple requests to same site - use tab pooling
+await piggy.register("amazon", "https://amazon.com", { pool: 4 });
+```
 
 ---
 
@@ -530,6 +550,7 @@ for (let i = 0; i < sites.length; i += chunkSize) {
 
 ## Next Steps
 
+- [Tab Pooling](./tab-pooling) — Handle concurrent requests to the same site
 - [Built-in API Server](./api-server) — Turn multi-site scraping into API
 - [Human Mode](./human-mode) — Add natural delays to multi-site operations
 - [Full API Reference](./api-reference) — Complete API documentation

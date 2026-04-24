@@ -15,6 +15,15 @@ interface LaunchOptions {
 }
 ```
 
+### Register Options
+
+```ts
+interface RegisterOptions {
+  binary?: "headless" | "headful";  // Override binary for this site
+  pool?: number;                    // Number of tabs in pool (default: 1)
+}
+```
+
 ### Site Object
 
 ```ts
@@ -68,6 +77,9 @@ interface SiteObject {
     css(query: string): Promise<any>;
     id(id: string): Promise<any>;
   };
+  
+  // Data Storage (NEW)
+  store<T = any>(data: T | T[], schemaName?: string): Promise<StoreResult>;
   
   // RPC (exposeFunction)
   exposeFunction(name: string, handler: (data: any) => Promise<any> | any): Promise<void>;
@@ -127,6 +139,9 @@ interface SiteObject {
   screenshot(filePath?: string): Promise<string>;
   pdf(filePath?: string): Promise<string>;
   
+  // Tab Pooling (NEW)
+  poolStats(): PoolStats;
+  
   // API Server
   api(
     path: string, 
@@ -142,6 +157,130 @@ interface SiteObject {
   _client?: PiggyClient;
   close(): Promise<void>;
 }
+```
+
+---
+
+## Store Types (NEW)
+
+### Store Result
+
+```ts
+interface StoreResult {
+  stored: number;   // Number of records successfully saved
+  skipped: number;  // Number of records that failed validation
+}
+```
+
+### Store Schema (piggy.store.json)
+
+```ts
+interface StoreSchema {
+  stores: StoreDefinition[];
+}
+
+interface StoreDefinition {
+  name: string;                                    // Unique identifier
+  destination: string;                             // File path (.json or .db)
+  fields: Record<string, StoreFieldDefinition>;    // Field schemas
+}
+
+interface StoreFieldDefinition {
+  type: "string" | "number" | "boolean" | "object" | "array";
+  default?: any;                                   // Default value if missing
+}
+```
+
+---
+
+## Tab Pooling Types (NEW)
+
+### Pool Stats
+
+```ts
+interface PoolStats {
+  idle: number;    // Free tabs ready for use
+  busy: number;    // Tabs currently handling requests
+  queued: number;  // Requests waiting for a free tab
+  total: number;   // Total pool size (idle + busy)
+}
+```
+
+---
+
+## OpenAPI / Detail Types (NEW)
+
+### Serve Options (Updated)
+
+```ts
+interface ServeOptions {
+  hostname?: string;     // Default: "localhost"
+  title?: string;        // API title for OpenAPI
+  version?: string;      // API version for OpenAPI
+  description?: string;  // API description for OpenAPI
+}
+```
+
+### API Options (Updated)
+
+```ts
+interface ApiOptions {
+  method?: "GET" | "POST" | "PUT" | "DELETE";  // default: "GET"
+  ttl?: number;           // Cache TTL in ms (0 = no cache)
+  before?: Array<(context: any) => void>;  // Middleware
+  timeout?: number;       // Request timeout in ms (NEW)
+  detail?: RouteDetail;   // OpenAPI documentation (NEW)
+}
+```
+
+### Route Detail
+
+```ts
+interface RouteDetail {
+  tags?: string[];                    // Group routes in UI
+  summary?: string;                   // Short description
+  description?: string;               // Long description
+  parameters?: RouteParameter[];      // Query/path/header params
+  deprecated?: boolean;               // Mark as deprecated
+  hide?: boolean;                     // Hide from OpenAPI UI
+}
+```
+
+### Route Parameter
+
+```ts
+interface RouteParameter {
+  name: string;                                    // Parameter name
+  in: "query" | "path" | "header" | "cookie";    // Where it lives
+  description?: string;                            // Description
+  required?: boolean;                              // Is it required?
+  schema: RouteParameterSchema;                    // Type definition
+}
+
+interface RouteParameterSchema {
+  type: "string" | "integer" | "number" | "boolean" | "array" | "object";
+  default?: any;           // Default value
+  minimum?: number;        // Minimum value (for numbers)
+  maximum?: number;        // Maximum value (for numbers)
+  format?: string;         // email, uuid, date-time, etc.
+  enum?: any[];            // Allowed values
+  pattern?: string;        // Regex pattern for strings
+  example?: any;           // Example value
+}
+```
+
+---
+
+## UsePiggy Type Helper (NEW)
+
+```ts
+// usePiggy returns a typed version of the piggy object
+function usePiggy<T extends string>(): {
+  [K in T]: SiteObject;
+};
+
+// Example usage:
+// const { amazon, ebay } = usePiggy<"amazon" | "ebay">();
 ```
 
 ---
@@ -315,16 +454,6 @@ type ApiHandler = (
 ) => Promise<any>;
 ```
 
-### API Options
-
-```ts
-interface ApiOptions {
-  method?: "GET" | "POST" | "PUT" | "DELETE";  // default: "GET"
-  ttl?: number;           // Cache TTL in ms (0 = no cache)
-  before?: Array<(context: any) => void>;  // Middleware
-}
-```
-
 ---
 
 ## Interaction Options
@@ -356,7 +485,7 @@ interface TypeOptions {
 interface Piggy {
   // Lifecycle
   launch(opts?: LaunchOptions): Promise<Piggy>;
-  register(name: string, url: string, opts?: { binary?: "headless" | "headful" }): Promise<Piggy>;
+  register(name: string, url: string, opts?: RegisterOptions): Promise<Piggy>;
   close(opts?: { force?: boolean }): Promise<void>;
   
   // Global controls
@@ -369,7 +498,7 @@ interface Piggy {
   unexpose(name: string, tabId?: string): Promise<Piggy>;
   
   // API Server
-  serve(port: number, opts?: { hostname?: string }): Promise<void>;
+  serve(port: number, opts?: ServeOptions): Promise<void>;
   stopServer(): void;
   routes(): Array<{
     site: string;
@@ -461,14 +590,26 @@ interface WaitOptions {
 ## Example Usage with Types
 
 ```ts
-import piggy, { type SiteObject, type CapturedRequest } from "nothing-browser";
+import piggy, { 
+  type SiteObject, 
+  type CapturedRequest,
+  type PoolStats,
+  type StoreResult,
+  type RouteDetail,
+  usePiggy 
+} from "nothing-browser";
 
 // Fully typed
-const response = await piggy.launch({ mode: "tab", binary: "headless" });
-await piggy.register("api", "https://api.example.com");
+await piggy.launch({ mode: "tab", binary: "headless" });
+
+// Register with pool
+await piggy.register("amazon", "https://www.amazon.com", { pool: 3 });
+
+// Typed access with usePiggy
+const { amazon } = usePiggy<"amazon">();
 
 // SiteObject is fully typed
-const site: SiteObject = piggy.api;
+const site: SiteObject = piggy.amazon;
 
 // Typed evaluate
 const data = await site.evaluate<{ id: number; name: string }>(() => ({
@@ -479,10 +620,39 @@ const data = await site.evaluate<{ id: number; name: string }>(() => ({
 // Typed capture
 const requests: CapturedRequest[] = await site.capture.requests();
 
-// Typed API handler
+// Typed pool stats
+const stats: PoolStats = site.poolStats();
+console.log(`Idle: ${stats.idle}, Busy: ${stats.busy}, Queued: ${stats.queued}`);
+
+// Typed store
+const storeResult: StoreResult = await site.store(products);
+console.log(`Stored: ${storeResult.stored}, Skipped: ${storeResult.skipped}`);
+
+// Typed API handler with detail
 await site.api("/users", async (params, query, body): Promise<{ users: any[] }> => {
   return { users: [] };
-}, { ttl: 30000 });
+}, { 
+  ttl: 30000,
+  detail: {
+    summary: "Get users",
+    description: "Returns a list of users",
+    tags: ["Users"],
+    parameters: [
+      {
+        name: "limit",
+        in: "query",
+        schema: { type: "integer", default: 10 }
+      }
+    ]
+  }
+});
+
+// Typed serve with OpenAPI
+await piggy.serve(3000, {
+  title: "My API",
+  version: "1.0.0",
+  description: "API description"
+});
 ```
 
 ---
@@ -490,8 +660,10 @@ await site.api("/users", async (params, query, body): Promise<{ users: any[] }> 
 ## Next Steps
 
 - [Quick Start](./quickstart) — Start using Piggy
+- [Typed Sites](./typed-sites) — Using usePiggy for type safety
+- [Tab Pooling](./tab-pooling) — Concurrent request handling
+- [Data Storage](./data-storage) — Schema-driven persistence
 - [API Reference](./api-reference.md) — Complete API reference
-- [Examples](./excample) — More code examples
 
 ---
 

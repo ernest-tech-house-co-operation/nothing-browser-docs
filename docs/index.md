@@ -14,7 +14,7 @@ hero:
       link: /guide/what-is-nothing
     - theme: alt
       text: Piggy API
-      link: /piggy/
+      link: /guide/piggy/quickstart
     - theme: alt
       text: Download Scraping Browser
       link: https://github.com/BunElysiaReact/nothing-browser/releases
@@ -126,6 +126,14 @@ features:
   </div>
 </div>
 
+## 📜 Legal
+
+<div class="legal-links">
+  <a href="/privacypolicy" class="legal-btn">🔒 Privacy Policy</a>
+  <a href="/termsofservice" class="legal-btn">📋 Terms of Service</a>
+  <a href="/acceptableuse" class="legal-btn">⚖️ Acceptable Use Policy</a>
+</div>
+
 ## 📞 Support & Community
 
 <div class="support-section">
@@ -224,6 +232,33 @@ features:
 
 .seo-card a:hover {
   text-decoration: underline;
+}
+
+.legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 24px 0 48px 0;
+  flex-wrap: wrap;
+}
+
+.legal-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: #1a1a1a;
+  border: 1px solid #2c2c2c;
+  border-radius: 8px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.legal-btn:hover {
+  border-color: #00cc66;
+  color: #00cc66;
+  transform: translateY(-2px);
 }
 
 .support-section {
@@ -334,6 +369,17 @@ features:
   }
   
   .support-btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .legal-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .legal-btn {
     width: 100%;
     text-align: center;
   }
