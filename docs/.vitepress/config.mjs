@@ -25,9 +25,11 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/what-is-nothing' },
-      { text: 'Piggy API', link: '/piggy/' },
+      { text: 'Piggy API', link: '/guide/piggy/quickstart' },
+      { text: 'Scripts', link: '/guide/scripts/' },
+      { text: 'FAQ', link: '/faq' },
       { text: 'Legal', link: '/privacypolicy' },
-      { text: 'v0.1.3', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
+      { text: 'v0.1.12', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
     ],
     
     sidebar: {
@@ -84,6 +86,7 @@ export default defineConfig({
             { text: 'Why Piggy Exists', link: '/guide/piggy/why-piggy' },
             { text: 'Comparison with Other Tools', link: '/guide/piggy/comparison' },
             { text: 'Installation', link: '/guide/piggy/installation' },
+            { text: 'Version Compatibility', link: '/guide/piggy/version-compatibility' },
             { text: 'Launch & Register', link: '/guide/piggy/launch' },
             { text: 'Navigation', link: '/guide/piggy/navigation' },
             { text: 'Interactions', link: '/guide/piggy/interactions' },
@@ -107,8 +110,25 @@ export default defineConfig({
             { text: '🏷️ Typed Sites (usePiggy)', link: '/guide/piggy/typed-sites' },
             { text: '🏊 Tab Pooling', link: '/guide/piggy/tab-pooling' },
             { text: '💾 Data Storage (site.store)', link: '/guide/piggy/data-storage' },
+            { text: '🌐 Remote Deployment', link: '/guide/piggy/remote-deployment' },
+            { text: '🚀 Proxy Support', link: '/guide/piggy/proxy-support' },
+            { text: '💾 Session Persistence (Opt-in)', link: '/guide/piggy/session-persistence' },
+            { text: '🆔 Identity & Profile', link: '/guide/piggy/identity-profile' },
+            { text: '🍪 Cookies Hot Reload', link: '/guide/piggy/cookies-hotreload' },
             { text: '📝 Full API Reference', link: '/guide/piggy/api-reference' },
-            { text: '📘 TypeScript Types', link: '/guide/piggy/types' }
+            { text: '📘 TypeScript Types', link: '/guide/piggy/types' },
+            { text: '❓ FAQ', link: '/guide/piggy/faq' }
+          ]
+        },
+        {
+          text: 'Script Marketplace',
+          collapsed: true,
+          items: [
+            { text: 'Overview', link: '/guide/scripts/' },
+            { text: 'Amazon Scraper', link: '/guide/scripts/amazon' },
+            { text: 'eBay Scraper', link: '/guide/scripts/ebay' },
+            { text: 'Walmart Scraper', link: '/guide/scripts/walmart' },
+            { text: 'Gemini Scraper', link: '/guide/scripts/gemini' }
           ]
         },
         {
@@ -152,6 +172,7 @@ export default defineConfig({
             { text: 'Expose API', link: '/piggy/expose' },
             { text: 'Capture API', link: '/piggy/capture' },
             { text: 'Session API', link: '/piggy/session' },
+            { text: 'Proxy API', link: '/piggy/proxy' },
             { text: 'API Server', link: '/piggy/api-server' },
             { text: 'Types', link: '/piggy/types' }
           ]

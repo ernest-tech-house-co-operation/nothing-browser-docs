@@ -655,6 +655,226 @@ await piggy.serve(3000, {
 });
 ```
 
+## New Feature Types (v0.1.12 / v0.0.18)
+
+### Connection Options (HTTP Mode)
+
+```ts
+interface ConnectOptions {
+  host: string;   // http://localhost:2005 or http://your-vps:2005
+  key: string;    // Your 64-character key (starts with "peaseernest")
+}
+
+Proxy Types
+ts
+
+interface ProxySetOptions {
+  host?: string;
+  port?: number;
+  type?: "http" | "https" | "socks5" | "socks4";
+  user?: string;
+  pass?: string;
+  proxy?: string;  // URL format: "http://host:port"
+}
+
+interface ProxyCurrent {
+  host: string;
+  port: number;
+  type: string;
+  user?: string;
+  alive: boolean;
+  latencyMs?: number;
+}
+
+interface ProxyStats {
+  total: number;    // Total proxies loaded
+  alive: number;    // Proxies that passed health check
+  dead: number;     // Proxies that failed health check
+  index: number;    // Current position in rotation
+  checking: boolean; // Whether health check is running
+}
+
+interface ProxyListItem {
+  host: string;
+  port: number;
+  type: string;
+  alive: boolean;
+  latencyMs?: number;
+}
+
+type ProxyRotationMode = "none" | "timed" | "perrequest";
+
+interface ProxyConfig {
+  skipDead?: boolean;
+  autoCheck?: boolean;
+}
+
+type ProxySaveFilter = "alive" | "dead" | "all";
+
+Proxy Events
+ts
+
+type ProxyEvent =
+  | "proxy:loaded"      // { count: number }
+  | "proxy:changed"     // { host: string; port: number; type: string }
+  | "proxy:alive"       // { host: string; port: number; type: string; latencyMs: number }
+  | "proxy:dead"        // { host: string; port: number; type: string }
+  | "proxy:check:started" // { total: number }
+  | "proxy:check:done"  // { alive: number; dead: number }
+  | "proxy:exhausted"   // {}
+  | "proxy:fetch:failed" // { url: string; error: string }
+  | "proxy:ovpn:loaded"; // { path: string }
+
+Session Persistence Types
+ts
+
+interface SessionPaths {
+  workDir: string;
+  cookies: string;
+  profile: string;
+  ws: string;
+  pings: string;
+}
+
+// ws.json frame format
+interface WsFrame {
+  id: string;
+  direction: "sent" | "received";
+  type: "text" | "binary" | "open" | "close";
+  data: string;
+  timestamp: number;
+  size: number;
+}
+
+// pings.json entry format
+interface PingEntry {
+  timestamp: number;
+  latencyMs: number | null;
+  status: "success" | "failed";
+  error?: string;
+}
+
+Identity & Profile Types
+ts
+
+// identity.json — DO NOT EDIT MANUALLY
+interface Identity {
+  cpu_cores: number;
+  ram_gb: number;
+  screen_resolution: string;
+  gpu_vendor: string;
+  gpu_renderer: string;
+  timezone: string;
+  canvas_seed: number;
+  audio_seed: number;
+  webgl_seed: number;
+  font_seed: number;
+}
+
+// profile.json — SAFE TO EDIT
+interface Profile {
+  user_agent: string;
+  sec_ch_ua: string;
+  platform: string;
+  chrome_version: number;
+  language: string;
+  gpu_renderer: string;
+  gpu_vendor: string;
+  timezone: string;
+}
+
+Cookie Format (cookies.json)
+ts
+
+interface Cookie {
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+  secure?: boolean;
+  httpOnly?: boolean;
+  sameSite?: "Strict" | "Lax" | "None";
+  expires?: number;  // Unix timestamp (seconds), null = session cookie
+}
+
+Updated Piggy Client Interface
+ts
+
+interface PiggyClient {
+  // Connection
+  connect(opts: ConnectOptions): Promise<void>;
+  
+  // Proxy methods
+  proxyLoad(path: string): Promise<void>;
+  proxyFetch(url: string): Promise<void>;
+  proxyOvpn(path: string): Promise<void>;
+  proxySet(opts: ProxySetOptions): Promise<void>;
+  proxyTest(): Promise<void>;
+  proxyTestStop(): Promise<void>;
+  proxyNext(): Promise<void>;
+  proxyDisable(): Promise<void>;
+  proxyEnable(): Promise<void>;
+  proxyCurrent(): Promise<ProxyCurrent>;
+  proxyStats(): Promise<ProxyStats>;
+  proxyList(limit?: number): Promise<ProxyListItem[]>;
+  proxyRotation(mode: ProxyRotationMode, interval?: number): Promise<void>;
+  proxyConfig(opts: ProxyConfig): Promise<void>;
+  proxySave(path: string, filter: ProxySaveFilter): Promise<void>;
+  onProxyEvent(event: string, handler: (data: any) => void): () => void;
+  
+  // Session persistence
+  sessionWsSave(enabled: boolean): Promise<void>;
+  sessionPingsSave(enabled: boolean): Promise<void>;
+  sessionPaths(): Promise<SessionPaths>;
+  sessionCookiesPath(): Promise<string>;
+  sessionProfilePath(): Promise<string>;
+  sessionWsPath(): Promise<string>;
+  sessionPingsPath(): Promise<string>;
+  sessionReload(): Promise<void>;
+}
+
+Example Usage with New Types
+ts
+
+import piggy from "nothing-browser";
+
+// Connect to remote server
+await piggy.connect({
+  host: "http://vps.example.com:2005",
+  key: "peaseernestbd7436aecf7041a39532a03308b8ee3350495f3cdb534b8294f9d"
+});
+
+// Enable WebSocket saving
+await piggy.sessionWsSave(true);
+
+// Get file paths
+const paths: SessionPaths = await piggy.sessionPaths();
+console.log(paths.cookies);
+
+// Load proxies
+await piggy.proxyFetch("https://example.com/proxies.txt");
+await piggy.proxyTest();
+
+// Get proxy stats
+const stats: ProxyStats = await piggy.proxyStats();
+console.log(`${stats.alive}/${stats.total} proxies alive`);
+
+// Listen to proxy events
+piggy.onProxyEvent("proxy:alive", (data: ProxyListItem) => {
+  console.log(`✅ ${data.host}:${data.port} (${data.latencyMs}ms)`);
+});
+
+// Rotate proxies
+await piggy.proxyRotation("perrequest");
+
+Version Notice
+
+    ⚠️ These types require Binary v0.1.12+ and Library v0.0.18+
+
+    See Version Compatibility for details.
+
+
+
 ---
 
 ## Next Steps
