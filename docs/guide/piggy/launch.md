@@ -2,14 +2,16 @@
 
 Configure the browser and register sites for scraping.
 
+---
+
 ## Launch Options
 
 ```ts
 import piggy from "nothing-browser";
 
 await piggy.launch({
-  mode: "tab",      // "tab" | "process"
-  binary: "headless" // "headless" | "headful"
+  mode: "tab",           // "tab" | "process"
+  binary: "headless"     // "headless" | "headful" | "/custom/path/to/binary"
 });
 ```
 
@@ -22,14 +24,73 @@ await piggy.launch({
 
 **Default:** `"tab"`
 
-### `binary` — Headless vs Headful
+### `binary` — Headless, Headful, or Custom Path
 
-| Binary | Description | Use Case |
-|--------|-------------|----------|
-| `"headless"` | No visible window | Production, CI/CD, servers |
-| `"headful"` | Visible browser window | Debugging, sites that detect headless |
+| Value | Description |
+|-------|-------------|
+| `"headless"` | No visible window — looks in project root |
+| `"headful"` | Visible browser window — looks in project root |
+| Custom path (any string) | Raw path to binary (required for Windows) |
 
 **Default:** `"headless"`
+
+---
+
+## Linux / macOS Users (Simple)
+
+Just use the defaults:
+
+```typescript
+await piggy.launch({ binary: "headless" });
+```
+
+That's it. One file. No DLLs. No paths.
+
+---
+
+## Windows Users (Custom Path Required)
+
+**Our recommendation:** Extract the zip to a `brow` folder in your project root:
+
+```
+C:\my-scraper\
+├── brow\
+│   └── nothing-browser-headless.exe
+├── package.json
+└── index.ts
+```
+
+Then:
+
+```typescript
+await piggy.launch({ 
+  binary: "brow/nothing-browser-headless.exe" 
+});
+```
+
+### Windows Path Examples
+
+```typescript
+// ✅ Our recommendation — clean and simple
+binary: "brow/nothing-browser-headless.exe"
+
+// ✅ Absolute path (also works)
+binary: "C:\\my-scraper\\brow\\nothing-browser-headless.exe"
+
+// ✅ Forward slashes work too
+binary: "C:/my-scraper/brow/nothing-browser-headless.exe"
+
+// ❌ Don't do this — missing .exe
+binary: "brow/nothing-browser-headless"
+```
+
+### How Path Detection Works
+
+| Input | Behavior |
+|-------|----------|
+| `"headless"` | Looks for `nothing-browser-headless` in cwd |
+| `"headful"` | Looks for `nothing-browser-headful` in cwd |
+| Any other string | Treats as raw path, checks existence |
 
 ---
 
@@ -48,7 +109,7 @@ await piggy.books.navigate();
 const title = await piggy.books.title();
 ```
 
-### Register with Custom Binary
+### Register with Custom Binary (Per Site)
 
 Override the global binary for a specific site:
 
@@ -58,6 +119,18 @@ await piggy.launch({ binary: "headless" });
 
 // This site runs headful (visible window)
 await piggy.register("debug", "https://example.com", { binary: "headful" });
+
+// Windows — custom path per site
+await piggy.register("amazon", "https://amazon.com", { 
+  binary: "brow/nothing-browser-headless.exe" 
+});
+```
+
+### Register with Tab Pooling
+
+```ts
+// Pool of 3 tabs for concurrent requests
+await piggy.register("amazon", "https://amazon.com", { pool: 3 });
 ```
 
 ---
@@ -67,16 +140,15 @@ await piggy.register("debug", "https://example.com", { binary: "headful" });
 ```ts
 import piggy from "nothing-browser";
 
-// Launch with options
-await piggy.launch({
-  mode: "tab",
-  binary: "headless"
-});
+// Linux / macOS
+await piggy.launch({ mode: "tab", binary: "headless" });
+
+// Windows — use custom path
+// await piggy.launch({ mode: "tab", binary: "brow/nothing-browser-headless.exe" });
 
 // Register multiple sites
 await piggy.register("books", "https://books.toscrape.com");
 await piggy.register("api", "https://api.example.com");
-await piggy.register("dashboard", "https://dashboard.example.com", { binary: "headful" });
 
 // Navigate and scrape
 await piggy.books.navigate();
@@ -90,7 +162,7 @@ await piggy.close();
 
 ## Process Mode (Isolated Browsers)
 
-When you need complete isolation between sites (different IPs, profiles, or cookies don't mix):
+When you need complete isolation between sites:
 
 ```ts
 await piggy.launch({ mode: "process" });
@@ -99,7 +171,6 @@ await piggy.launch({ mode: "process" });
 await piggy.register("site1", "https://example.com");
 await piggy.register("site2", "https://example.org");
 
-// They run completely independently
 await piggy.site1.navigate();
 await piggy.site2.navigate();
 ```
@@ -122,10 +193,10 @@ Enable human-like behavior globally:
 
 ```ts
 await piggy.launch();
-piggy.actHuman(true);  // All interactions now have random delays
+piggy.actHuman(true);
 
 await piggy.register("site", "https://example.com");
-await piggy.site.click("button");     // Random delay before click
+await piggy.site.click("button");        // Random delay before click
 await piggy.site.type("#input", "hello"); // Simulated typing speed
 ```
 
@@ -140,16 +211,18 @@ Human mode affects:
 
 ## Binary Detection
 
-Check which binary would be used:
+Check which binary would be used without launching:
 
 ```ts
 import piggy from "nothing-browser";
 
 const headlessPath = piggy.detect("headless");
 const headfulPath = piggy.detect("headful");
+const customPath = piggy.detect("brow/nothing-browser-headless.exe");
 
-console.log("Headless:", headlessPath); // "/path/to/nothing-browser-headless"
-console.log("Headful:", headfulPath);   // "/path/to/nothing-browser-headful"
+console.log("Headless:", headlessPath);
+console.log("Headful:", headfulPath);
+console.log("Custom:", customPath);
 ```
 
 ---
@@ -161,48 +234,29 @@ try {
   await piggy.launch({ binary: "headless" });
 } catch (error) {
   console.error("Failed to launch:", error.message);
-  // Binary not found, missing dependencies, etc.
+}
+
+try {
+  await piggy.launch({ binary: "brow/nothing-browser-headless.exe" });
+} catch (error) {
+  console.error("Binary not found — double-check your path");
 }
 
 try {
   await piggy.register("site", "https://example.com");
 } catch (error) {
-  console.error("Registration failed:", error.message);
-  // Must call launch() first
+  console.error("Registration failed — call launch() first");
 }
 ```
 
 ---
 
-## Complete Setup with Session Persistence
+## Quick Summary
 
-```ts
-import piggy from "nothing-browser";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-
-const SESSION_FILE = "./session.json";
-
-await piggy.launch({ mode: "tab", binary: "headless" });
-await piggy.register("site", "https://example.com");
-
-// Load saved session if exists
-if (existsSync(SESSION_FILE)) {
-  const saved = JSON.parse(readFileSync(SESSION_FILE, "utf8"));
-  await piggy.site.session.import(saved);
-  console.log("Session restored");
-}
-
-await piggy.site.navigate();
-
-// Save session on exit
-process.on("SIGINT", async () => {
-  const session = await piggy.site.session.export();
-  writeFileSync(SESSION_FILE, JSON.stringify(session, null, 2));
-  console.log("Session saved");
-  await piggy.close();
-  process.exit(0);
-});
-```
+| Platform | Launch Code |
+|----------|-------------|
+| **Linux / macOS** | `await piggy.launch({ binary: "headless" })` |
+| **Windows** | `await piggy.launch({ binary: "brow/nothing-browser-headless.exe" })` |
 
 ---
 
