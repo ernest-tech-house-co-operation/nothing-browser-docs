@@ -27,6 +27,7 @@ export default defineConfig({
       { text: 'Guide', link: '/guide/what-is-nothing' },
       { text: 'Piggy API', link: '/guide/piggy/quickstart' },
       { text: 'Scripts', link: '/guide/scripts/' },
+      { text: 'Blog', link: '/blog/' },
       { text: 'FAQ', link: '/faq' },
       { text: 'Legal', link: '/privacypolicy' },
       { text: 'v0.1.12', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
@@ -175,6 +176,18 @@ export default defineConfig({
             { text: 'Proxy API', link: '/piggy/proxy' },
             { text: 'API Server', link: '/piggy/api-server' },
             { text: 'Types', link: '/piggy/types' }
+          ]
+        }
+      ],
+      '/blog/': [
+        {
+          text: 'Nothing Blog',
+          items: [
+            { text: 'Home', link: '/blog/' },
+            { text: 'Bun Series', items: [
+              { text: 'What The Fuck Is Bun?', link: '/blog/bun/whatthefuckisbun' },
+              { text: 'Bun Install: The Truth Nobody Wants to Admit', link: '/blog/bun/buninstallmess' }
+            ]}
           ]
         }
       ]
