@@ -8,13 +8,13 @@ Common issues, questions, and solutions for Piggy and Nothing Browser.
 
 ### Q1: "I updated my library to v0.0.18, but `piggy.proxy` says 'command not recognized'. Why?"
 
-**Answer:** You updated the TypeScript library but are still running an old binary (v0.1.0). New features require **Binary v0.1.12+**.
+**Answer:** You updated the TypeScript library but are still running an old binary (v0.1.0). New features require **Binary v0.1.14+**.
 
 ```bash
 # Check your binary version
 ./nothing-browser-headless --version
 
-# If it's older than v0.1.12, download latest from GitHub Releases
+# If it's older than v0.1.14, download latest from GitHub Releases
 # Replace the binary in your project root
 ```
 
@@ -72,7 +72,7 @@ curl --max-time 60 "http://localhost:3000/search"
 piggy.actHuman(false);
 
 # Fix selector or add timeout
-await site.waitForSelector(".correct-class", 10000);
+await site.wait.selector({ selector: ".correct-class", timeout: 10000 });
 ```
 
 ---
@@ -126,28 +126,9 @@ server {
 
 ---
 
-### Q8: "How do I run Piggy on a VPS in the background?"
-
-**Answer:** Use `nohup` or `systemd`:
-
-```bash
-# With nohup
-nohup ./nothing-browser-headless > piggy.log 2>&1 &
-
-# Check logs
-tail -f piggy.log
-
-# Stop
-pkill nothing-browser-headless
-```
-
-**For systemd (auto-start on boot):** See [Remote Deployment](./remote-deployment) guide.
-
----
-
 ## Proxy Support
 
-### Q9: "Why does Piggy use a C++ ProxyManager instead of standard Node.js proxy agents?"
+### Q8: "Why does Piggy use a C++ ProxyManager instead of standard Node.js proxy agents?"
 
 **Answer:** Speed and stealth.
 
@@ -162,25 +143,7 @@ Handling proxies in C++ prevents "leakage" that reveals your real IP to advanced
 
 ---
 
-### Q10: "Can I use my own OpenVPN (.ovpn) files with Piggy?"
-
-**Answer:** Yes. v0.1.12+ supports loading `.ovpn` files directly:
-
-```typescript
-// Load VPN config
-await piggy.proxy.ovpn("./nordvpn-us.ovpn");
-
-// Wait for connection
-piggy.proxy.on("proxy:ovpn:loaded", () => {
-  console.log("VPN connected, new IP active");
-});
-```
-
-This tunnels the browser's traffic specifically through the VPN.
-
----
-
-### Q11: "How do I rotate proxies automatically?"
+### Q9: "How do I rotate proxies automatically?"
 
 **Answer:** Use rotation strategies:
 
@@ -197,86 +160,9 @@ await piggy.proxy.next();
 
 ---
 
-### Q12: "What proxy formats are supported?"
+## Identity & Profile
 
-**Answer:** Multiple formats:
-
-```
-# HTTP/HTTPS
-http://103.149.162.195:80
-https://proxy.example.com:443
-
-# SOCKS
-socks5://user:pass@proxy.example.com:1080
-socks4://proxy.example.com:1080
-
-# Plain (auto-detects)
-103.149.162.195:80
-```
-
-Lines starting with `#` are ignored.
-
----
-
-### Q13: "How do I check if my proxies are alive?"
-
-**Answer:** Use `proxy.test()` and listen for events:
-
-```typescript
-await piggy.proxy.test();
-
-piggy.proxy.on("proxy:alive", (data) => {
-  console.log(`✅ ${data.host}:${data.port} (${data.latencyMs}ms)`);
-});
-
-piggy.proxy.on("proxy:dead", (data) => {
-  console.log(`❌ ${data.host}:${data.port}`);
-});
-
-piggy.proxy.on("proxy:check:done", (data) => {
-  console.log(`Done: ${data.alive}/${data.dead} alive`);
-});
-```
-
----
-
-## Session Persistence
-
-### Q14: "My `ws.json` file is getting huge (5GB+). How do I stop this?"
-
-**Answer:** WebSocket saving is **opt-in**. Disable it when not debugging:
-
-```typescript
-// Stop saving WebSocket frames
-await piggy.sessionWsSave(false);
-
-// Delete the large file
-// rm ws.json
-```
-
-**Recommended:** Enable only for debugging, not for 24/7 production runs.
-
----
-
-### Q15: "How do I update cookies without restarting my 7-day scrape?"
-
-**Answer:** Use **Hot Reload**:
-
-```bash
-# Step 1: Edit cookies.json while scraper runs
-nano cookies.json
-```
-
-```typescript
-// Step 2: Reload from your code
-await piggy.sessionReload();
-
-// Browser adopts new cookies instantly, no restart
-```
-
----
-
-### Q16: "What is `identity.json` and can I move it to a different server?"
+### Q10: "What is `identity.json` and can I move it to a different server?"
 
 **Answer:** `identity.json` is your "Hardware DNA" — it contains your CPU, RAM, GPU, and timezone.
 
@@ -293,67 +179,7 @@ scp identity.json user@vps:/home/user/piggy/
 
 ---
 
-### Q17: "My cookies aren't persisting across restarts. What's wrong?"
-
-**Answer:** Check that `cookies.json` exists and has write permissions:
-
-```bash
-# Check file exists
-ls -la cookies.json
-
-# Check permissions
-chmod 644 cookies.json
-
-# If missing, Piggy creates it automatically on first cookie set
-```
-
-Also ensure you're using HTTP mode or the binary has write access to the directory.
-
----
-
-## Identity & Profile
-
-### Q18: "What's the difference between `identity.json` and `profile.json`?"
-
-**Answer:**
-
-| File | Purpose | Edit? |
-|------|---------|-------|
-| `identity.json` | Hardware fingerprint (CPU, RAM, GPU, seeds) | ❌ No |
-| `profile.json` | Browser settings (UA, headers, timezone) | ✅ Yes |
-
-`profile.json` is built from `identity.json` on first run. Edit `profile.json` to change User-Agent, language, or timezone.
-
----
-
-### Q19: "How do I change my User-Agent?"
-
-**Answer:** Edit `profile.json` and reload:
-
-```bash
-# Step 1: Stop or pause scraper
-# Step 2: Edit profile.json
-nano profile.json
-```
-
-```json
-{
-  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/124.0.0.0"
-}
-```
-
-```typescript
-// Step 3: Reload
-await piggy.sessionReload();
-
-// Step 4: Verify
-const ua = await site.evaluate(() => navigator.userAgent);
-console.log(ua); // Windows UA now
-```
-
----
-
-### Q20: "Can I have multiple identities on the same machine?"
+### Q11: "Can I have multiple identities on the same machine?"
 
 **Answer:** Yes. Create separate directories for different identities:
 
@@ -373,140 +199,9 @@ Each directory has its own `identity.json`, `profile.json`, and `cookies.json`.
 
 ---
 
-## Performance & Stability
+## Security & Responsible Scraping
 
-### Q21: "Piggy is using too much memory. How do I reduce it?"
-
-**Answer:** Several strategies:
-
-```typescript
-// 1. Disable WebSocket saving if enabled
-await piggy.sessionWsSave(false);
-
-// 2. Clear captured requests periodically
-await piggy.site.capture.clear();
-
-// 3. Close tabs when done
-await piggy.site.close();
-
-// 4. Use tab pooling (limits concurrent tabs)
-await piggy.register("site", "https://example.com", { pool: 2 });
-
-// 5. Restart the binary daily (via cron)
-# cron job: 0 3 * * * pkill nothing-browser-headless && ./nothing-browser-headless
-```
-
----
-
-### Q22: "Piggy crashes randomly. How do I debug?"
-
-**Answer:** Check logs and run in headful mode:
-
-```bash
-# Run without nohup to see errors
-./nothing-browser-headless
-
-# Or check log file
-tail -f piggy.log
-
-# Run headful to see browser window
-# (Only works locally, not on headless VPS)
-./nothing-browser-headful
-```
-
-**Common crash causes:**
-- Out of memory (reduce concurrent tabs)
-- Corrupted `cookies.json` (delete and restart)
-- Old binary version (update to latest)
-
----
-
-### Q23: "How do I keep Piggy running 24/7 on a VPS?"
-
-**Answer:** Use systemd for auto-restart:
-
-```bash
-# Create service file
-sudo nano /etc/systemd/system/piggy.service
-```
-
-```ini
-[Unit]
-Description=Piggy Headless Browser
-After=network.target
-
-[Service]
-Type=simple
-User=your-user
-WorkingDirectory=/home/your-user/piggy
-ExecStart=/home/your-user/piggy/nothing-browser-headless
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-```
-
-```bash
-# Enable and start
-sudo systemctl enable piggy
-sudo systemctl start piggy
-sudo systemctl status piggy
-```
-
----
-
-## Security
-
-### Q24: "Is my data safe when using Piggy?"
-
-**Answer:** Yes. The binary sends zero data out of your machine except the websites you visit.
-
-- ❌ No telemetry
-- ❌ No phone home
-- ❌ No crash reports sent
-- ❌ No tracking
-
-All data stays in your working directory. See [Privacy Policy](/privacypolicy) for details.
-
----
-
-### Q25: "Can someone hack my Piggy server if they have the key?"
-
-**Answer:** The key provides full control over the browser. **Protect it like a password.**
-
-**Best practices:**
-- Store key in environment variables, not code
-- Use firewall to restrict IP access: `ufw allow from YOUR_IP to port 2005`
-- Use Nginx with client certificate authentication for production
-- Rotate keys periodically: delete `.piggy` file and restart
-
----
-
-### Q26: "Does Piggy work with Cloudflare protected sites?"
-
-**Answer:** Yes. Piggy passes Cloudflare where other tools fail because:
-
-- Real BoringSSL TLS (Chrome-identical JA3 fingerprint)
-- No `navigator.webdriver` flag
-- DocumentCreation injection (cannot be detected)
-- Human mode for behavioral patterns
-
-**Still getting blocked?** Try:
-```typescript
-// Use headful mode (some sites detect headless)
-await piggy.launch({ binary: "headful" });
-
-// Enable human mode
-piggy.actHuman(true);
-
-// Use residential proxies
-await piggy.proxy.load("./residential-proxies.txt");
-```
-
----
-
-### Q: Can I send 1000 requests per minute with Piggy and not get banned?
+### Q12: "Can I send 1000 requests per minute with Piggy and not get banned?"
 
 **Answer:** No. Piggy is a **stealth suit**, not a magic wand.
 
@@ -521,26 +216,6 @@ await piggy.proxy.load("./residential-proxies.txt");
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-**Piggy passes the technical sniff test:**
-- ✅ TLS handshake looks like Chrome
-- ✅ Canvas/WebGL fingerprints look like real hardware
-- ✅ Mouse moves with physics, not teleportation
-- ✅ No `navigator.webdriver` flag
-
-**But if you act like a bot, you'll be treated like a bot.**
-
----
-
-### The "Speed Limit" Rule
-
-Amazon knows a human cannot read 60 product pages in 60 seconds.
-
-| Behavior | Result |
-|----------|--------|
-| 1 request/second | ❌ Obvious bot |
-| 1 request/5 seconds | ⚠️ Suspicious |
-| 2-7 second random delays | ✅ Human-like |
 
 **The responsible way:**
 ```typescript
@@ -558,39 +233,6 @@ for (let i = 0; i < 1000; i++) {
 }
 ```
 
----
-
-### IP Reputation — The "Neighborhood" Rule
-
-If you come from a cheap datacenter IP, Amazon's guard is already up before you load the page.
-
-| IP Type | Risk Level |
-|---------|------------|
-| Residential proxy | ✅ Low |
-| Mobile IP | ✅ Very low |
-| Datacenter IP (AWS/DigitalOcean) | ❌ High risk |
-
-**Solution:** Use Piggy's proxy support with residential IPs:
-```typescript
-await piggy.proxy.load("./residential-proxies.txt");
-await piggy.proxy.enable();
-```
-
----
-
-### The "Consistent Soul" — Keep Your Identity
-
-Real humans don't change their CPU, RAM, and GPU every time they open a tab.
-
-| Action | Result |
-|--------|--------|
-| Delete `identity.json` daily | ❌ Amazon sees a new computer every day — suspicious |
-| Keep `identity.json` for 7 days | ✅ Amazon sees the "same" human — builds trust |
-
-**Don't delete your `identity.json`.** Let Amazon recognize you.
-
----
-
 ### The Golden Rule of Scraping
 
 > "The best scraper looks so much like a human, it's not worth the server's time to double-check."
@@ -602,35 +244,7 @@ Real humans don't change their CPU, RAM, and GPU every time they open a tab.
 
 ---
 
-### Realistic Expectations for a 7-Day Scrape
-
-| Strategy | Requests/day | Delay | Risk |
-|----------|--------------|-------|------|
-| Single IP, 2-7s delay | ~12,000 | 5s avg | ✅ Low |
-| Single IP, 1s delay | ~86,000 | 1s avg | ⚠️ Medium |
-| Residential proxy pool, 2-7s delay | ~12,000 per IP | 5s avg | ✅ Very low |
-| Datacenter IP, no delay | Unlimited | 0s | ❌ Immediate ban |
-
-**Recommended for 7 days:**
-- Use 5-10 residential proxies
-- Rotate every 10 requests or every 5 minutes
-- Add 2-7 second random delays
-- Keep your `identity.json`
-
----
-
-### Bottom Line
-
-Piggy is a **stealth suit**, not a ghost.
-
-- You can walk past guards undetected
-- You cannot knock over furniture and expect to stay invisible
-
-**Treat Piggy with respect. Add delays. Use proxies. Keep your identity. You'll scrape for 7 days without a single CAPTCHA.**
-
----
-
-### Q: Can I use Puppeteer with Nothing Browser?
+### Q13: "Can I use Puppeteer with Nothing Browser?"
 
 **Answer:** No. Not from me. And probably not ever.
 
@@ -645,37 +259,11 @@ Piggy is a **stealth suit**, not a ghost.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
----
-
-### The Technical Reality
-
 | | Piggy | Puppeteer |
 |---|-------|-----------|
 | **Communication** | Socket (Unix/Windows pipes) | CDP (WebSocket) |
 | **Library size** | ~50KB | ~50MB |
 | **What it does** | Maps commands to socket messages | Entire CDP implementation |
-| **Port to other languages** | Trivial (paste into LLM) | Extremely complex |
-
-**Piggy library is just a thin wrapper.** It does almost nothing except send commands to the binary.
-
-**Puppeteer is a monster.** It reimplements the entire Chrome DevTools Protocol.
-
----
-
-### Can You Make Them Work Together?
-
-**Theoretically?** Yes. Someone could write a bridge that translates CDP commands to Piggy socket commands.
-
-**Realistically?** That would require:
-
-```cpp
-// CDP command → Socket command
-// Example: Page.navigate → { cmd: "navigate", payload: { url } }
-
-// This is NOT trivial
-// CDP has 500+ methods
-// Piggy has ~50 socket commands
-```
 
 **If someone manages to make CDP and socket communicate fast — like how Piggy currently works — I will gladly market it as "Use Puppeteer to control Nothing Browser."**
 
@@ -683,79 +271,17 @@ But I won't code it myself. I have other priorities.
 
 ---
 
-### What About Playwright?
-
-Same answer. Playwright also uses CDP (for Chromium) or other protocols for Firefox/WebKit.
-
-| Tool | Protocol |
-|------|----------|
-| Puppeteer | CDP |
-| Playwright | CDP (Chromium) + others |
-| Selenium | WebDriver |
-| Piggy | Custom socket |
-
-**None of them speak Piggy's socket language.**
-
----
-
-### Want to Build It?
-
-Open a PR. I'll endorse you.
-
-**Requirements:**
-- Translate CDP commands to Piggy socket commands
-- Maintain it
-- Keep it fast
-
-**What you get:**
-- My endorsement
-- A link in the README
-- Eternal gratitude from Puppeteer users who want Nothing Browser
-
----
-
-### The Bottom Line
-
-| Your Question | Answer |
-|---------------|--------|
-| "Can I use Puppeteer with Nothing Browser?" | No. |
-| "Will you build it?" | No. |
-| "Can someone else build it?" | Yes. Open a PR. |
-| "Should I just use Piggy instead?" | Yes. It's 50KB and does the same thing. |
-
-**Piggy exists so you don't need Puppeteer for scraping.** 
-
----
-
-### Why Piggy is Better for Scraping
-
-| Feature | Piggy | Puppeteer |
-|---------|-------|-----------|
-| Built-in anti-detection | ✅ Yes | ❌ Needs plugins |
-| Fingerprint spoofing | ✅ Built-in | ❌ Hacks required |
-| HTTP mode (remote VPS) | ✅ Yes | ❌ No |
-| Proxy rotation | ✅ Built-in | ❌ Manual |
-| WebSocket frame saving | ✅ Opt-in | ❌ No |
-| Session hot reload | ✅ Yes | ❌ No |
-| Library size | 50KB | 50MB |
-
-**Piggy was built for scraping. Puppeteer was built for testing.**
-
-Use the right tool for the job.
-
----
-
 ## Troubleshooting Quick Reference
 
 | Problem | Likely Cause | Fix |
 |---------|--------------|-----|
-| `command not recognized` | Binary too old | Update to v0.1.12+ |
+| `command not recognized` | Binary too old | Update to v0.1.14+ |
 | `ENOENT /tmp/piggy` | Socket not created | Run binary manually once |
 | `curl: (52) Empty reply` | Timeout or human mode | Add `--max-time` or disable `actHuman()` |
 | Cookies not saving | Write permission | `chmod 644 cookies.json` |
-| Proxy command fails | Binary v0.1.0 | Update to v0.1.12+ |
+| Proxy command fails | Binary v0.1.0 | Update to v0.1.14+ |
 | Identity changes each run | `identity.json` deleted | Keep the file |
-| ws.json too large | Still saving | `sessionWsSave(false)` |
+| ws.json too large | Still saving | `session.setWsSave(false)` |
 
 ---
 
@@ -766,20 +292,13 @@ Use the right tool for the job.
 1. Check your versions: `./nothing-browser-headless --version` and `bun list | grep nothing-browser`
 2. Search existing [GitHub Issues](https://github.com/BunElysiaReact/nothing-browser/issues)
 3. Join [Discord](https://discord.gg/TUxBVQ7y) for community support
-4. Open a new GitHub issue with:
+4. Join [WhatsApp Channel](https://whatsapp.com/channel/0029VbBzoXuCxoArtvaslR0U) for updates
+5. Open a new GitHub issue with:
    - Binary version
    - Library version
    - OS (`uname -a`)
    - Error message
    - Minimal reproduction code
-
----
-
-## Next Steps
-
-- [Remote Deployment](./remote-deployment) — Run Piggy on a VPS
-- [Proxy Support](./proxy-support) — Route traffic through proxies
-- [Version Compatibility](./version-compatibility) — Understand binary vs library versions
 
 ---
 

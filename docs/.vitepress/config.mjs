@@ -4,7 +4,7 @@ export default defineConfig({
   title: "Nothing",
   description: "The Nothing Ecosystem — Does nothing... except everything that matters.",
   lang: 'en',
-  lastUpdated: true,
+  //lastUpdated: true,
   cleanUrls: true,
   
   // Ignore dead links to allow build to complete
@@ -25,15 +25,15 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/what-is-nothing' },
-      { text: 'Piggy API', link: '/guide/piggy/quickstart' },
+      { text: 'Piggy API', link: '/guide/piggy/' },
       { text: 'Scripts', link: '/guide/scripts/' },
       { text: 'Blog', link: '/blog/' },
-      { text: 'FAQ', link: '/faq' },
+      { text: 'FAQ', link: '/guide/piggy/faq' },
       { text: 'Legal', link: '/privacypolicy' },
-      { text: 'v0.1.12', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
+      { text: 'v0.1.14', link: 'https://github.com/BunElysiaReact/nothing-browser/releases' }
     ],
-    
-    sidebar: {
+    appearance: true,
+        sidebar: {
       '/guide/': [
         {
           text: 'The Nothing Ecosystem',
@@ -195,7 +195,8 @@ export default defineConfig({
     
     socialLinks: [
       { icon: 'github', link: 'https://github.com/BunElysiaReact/nothing-browser' },
-      { icon: 'discord', link: 'https://discord.gg/TUxBVQ7y' }
+      { icon: 'discord', link: 'https://discord.gg/TUxBVQ7y' },
+      { icon: 'whatsapp', link: 'https://whatsapp.com/channel/0029VbBzoXuCxoArtvaslR0U' }
     ],
     
     footer: {

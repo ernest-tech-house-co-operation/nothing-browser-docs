@@ -6,7 +6,7 @@ hero:
   text: "Does nothing..."
   tagline: "except everything that matters."
   image:
-    src: /nothing-logo.svg
+    src: /nothing_browser_pig_pink.svg
     alt: Nothing Ecosystem
   actions:
     - theme: brand
@@ -14,10 +14,10 @@ hero:
       link: /guide/what-is-nothing
     - theme: alt
       text: Piggy API
-      link: /guide/piggy/quickstart
+      link: /guide/piggy/
     - theme: alt
       text: Download Scraping Browser
-      link: https://github.com/BunElysiaReact/nothing-browser/releases
+      link: https://github.com/ernest-tech-house-co-operation/nothing-browser/releases
     - theme: alt
       text: Download Private Browser
       link: https://github.com/ernest-tech-house-co-operation/nothing-private-browser/releases
@@ -93,7 +93,7 @@ features:
     <span class="stat-label">Products</span>
   </div>
   <div class="stat">
-    <span class="stat-number">50+</span>
+    <span class="stat-number">100+</span>
     <span class="stat-label">API Methods</span>
   </div>
   <div class="stat">
@@ -126,6 +126,33 @@ features:
   </div>
 </div>
 
+<div class="github-section">
+  <div class="github-cards">
+    <a href="https://github.com/ernest-tech-house-co-operation/nothing-browser" class="github-card">
+      <span class="github-icon">📦</span>
+      <div>
+        <strong>nothing-browser</strong>
+        <small>Piggy scraper library · TypeScript</small>
+      </div>
+      <span class="github-stars">⭐ 22</span>
+    </a>
+    <a href="https://github.com/BunElysiaReact/nothing-browser" class="github-card">
+      <span class="github-icon">🦊</span>
+      <div>
+        <strong>nothing-browser-core</strong>
+        <small>Qt6/Chromium binary · C++</small>
+      </div>
+    </a>
+    <a href="https://github.com/ernest-tech-house-co-operation/nothing-private-browser" class="github-card">
+      <span class="github-icon">🔒</span>
+      <div>
+        <strong>nothing-private-browser</strong>
+        <small>Privacy browser · C++</small>
+      </div>
+    </a>
+  </div>
+</div>
+
 ## 📜 Legal
 
 <div class="legal-links">
@@ -140,9 +167,9 @@ features:
   <div class="support-links">
     <a href="https://discord.gg/TUxBVQ7y" class="support-btn discord">💬 Discord</a>
     <a href="https://whatsapp.com/channel/0029VbBzoXuCxoArtvaslR0U" class="support-btn whatsapp">📱 WhatsApp Channel</a>
-    <a href="https://github.com/BunElysiaReact/nothing-browser" class="support-btn github">🐙 GitHub (Scraping)</a>
+    <a href="https://github.com/ernest-tech-house-co-operation/nothing-browser" class="support-btn github">🐙 GitHub (Piggy)</a>
+    <a href="https://github.com/BunElysiaReact/nothing-browser" class="support-btn github">🐙 GitHub (Core)</a>
     <a href="https://github.com/ernest-tech-house-co-operation/nothing-private-browser" class="support-btn github">🐙 GitHub (Private)</a>
-    <a href="https://github.com/BunElysiaReact/piggy" class="support-btn github">🐙 GitHub (Piggy)</a>
   </div>
   
   <div class="contact-info">
@@ -232,6 +259,57 @@ features:
 
 .seo-card a:hover {
   text-decoration: underline;
+}
+
+.github-section {
+  margin: 48px 0;
+}
+
+.github-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.github-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #1a1a1a;
+  border: 1px solid #2c2c2c;
+  border-radius: 10px;
+  padding: 16px 24px;
+  text-decoration: none;
+  transition: all 0.2s;
+  min-width: 260px;
+}
+
+.github-card:hover {
+  border-color: #00cc66;
+  transform: translateY(-2px);
+}
+
+.github-icon {
+  font-size: 24px;
+}
+
+.github-card strong {
+  display: block;
+  color: #fff;
+  font-size: 14px;
+}
+
+.github-card small {
+  color: #888;
+  font-size: 11px;
+}
+
+.github-stars {
+  margin-left: auto;
+  color: #00cc66;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .legal-links {
@@ -382,6 +460,16 @@ features:
   .legal-btn {
     width: 100%;
     text-align: center;
+  }
+  
+  .github-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .github-card {
+    width: 100%;
+    max-width: 320px;
   }
 }
 </style>
