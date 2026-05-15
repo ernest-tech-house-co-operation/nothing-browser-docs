@@ -6,7 +6,7 @@ hero:
   text: "Does nothing..."
   tagline: "except everything that matters."
   image:
-    src: /nothing_browser_pig_pink.svg
+    src: /nothing-logo.svg
     alt: Nothing Ecosystem
   actions:
     - theme: brand
@@ -14,7 +14,7 @@ hero:
       link: /guide/what-is-nothing
     - theme: alt
       text: Piggy API
-      link: /guide/piggy/
+      link: /guide/piggy/quickstart
     - theme: alt
       text: Download Scraping Browser
       link: https://github.com/ernest-tech-house-co-operation/nothing-browser/releases
@@ -86,6 +86,18 @@ features:
     details: Turn your scraper into an API with one line. piggy.serve(3000) — automatic route generation, caching, middleware support.
     link: /guide/piggy/api-server
 ---
+
+<div class="version-warning">
+  <div class="warning-icon">⚠️</div>
+  <div class="warning-content">
+    <strong>Important Version Notice</strong><br>
+    <strong>Piggy library v0.1.0 is buggy.</strong> Please stick with <strong>v0.0.20+</strong> for now.<br>
+    Use <code>bun add nothing-browser@0.0.21</code> to get the stable library version.<br><br>
+    <strong>Binary versions below v0.1.14 are buggy.</strong> Please download <strong>v0.1.14 or higher</strong>.<br>
+    <strong> fixes are being worked on as of now and this notice will be removed when they are stable enough<strong>
+    Download from <a href="https://github.com/BunElysiaReact/nothing-browser/releases" target="_blank" style="color: #ff8888;">GitHub Releases</a>.
+  </div>
+</div>
 
 <div class="ecosystem-stats">
   <div class="stat">
@@ -194,6 +206,41 @@ features:
 </div>
 
 <style>
+.version-warning {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid #ff4444;
+  border-radius: 12px;
+  padding: 16px 24px;
+  margin: 24px auto;
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.warning-icon {
+  font-size: 28px;
+}
+
+.warning-content {
+  color: #ff8888;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.warning-content strong {
+  color: #ff4444;
+  font-size: 16px;
+}
+
+.warning-content code {
+  background: rgba(255, 68, 68, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #ff8888;
+}
+
 .ecosystem-stats {
   display: flex;
   justify-content: center;
@@ -434,11 +481,19 @@ features:
   transform: translateY(-4px);
 }
 
-/* Adjust hero actions for 4 buttons on mobile */
 @media (max-width: 640px) {
   .VPHomeHero .actions {
     flex-wrap: wrap;
     justify-content: center;
+  }
+  
+  .version-warning {
+    margin: 16px;
+    padding: 12px 16px;
+  }
+  
+  .warning-content {
+    font-size: 12px;
   }
   
   .support-links {

@@ -1,6 +1,3 @@
-## `quickstart.md`
-
-```markdown
 # Piggy Quick Start
 
 Get your first scraper running in under 5 minutes.
