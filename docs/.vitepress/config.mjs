@@ -99,7 +99,7 @@ export default defineConfig({
             { text: '🎯 modifyResponse', link: '/guide/piggy/modify-response' },
             { text: '📦 Local Cache Mode', link: '/guide/piggy/cache-mode' },
             { text: '💾 Session Persistence', link: '/guide/piggy/session' },
-            { text: '📸 Screenshot & PDF', link: '/guide/piggy/screenshot' },
+            { text: '📸 Screenshot & PDF', link: '/guide/piggy/screenshot-pdf' },
             { text: '🌐 Multi-Site Parallel', link: '/guide/piggy/multi-site' },
             { text: '🧠 Human Mode', link: '/guide/piggy/human-mode' },
             { text: '🕸️ Network Capture', link: '/guide/piggy/network-capture' },
