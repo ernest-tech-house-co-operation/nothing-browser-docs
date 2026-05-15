@@ -184,10 +184,32 @@ export default defineConfig({
           text: 'Nothing Blog',
           items: [
             { text: 'Home', link: '/blog/' },
-            { text: 'Bun Series', items: [
-              { text: 'What The Fuck Is Bun?', link: '/blog/bun/whatthefuckisbun' },
-              { text: 'Bun Install: The Truth Nobody Wants to Admit', link: '/blog/bun/buninstallmess' }
-            ]}
+            {
+              text: 'Bun Series',
+              collapsed: false,
+              items: [
+                { text: 'What The Fuck Is Bun?', link: '/blog/bun/whatthefuckisbun' },
+                { text: 'Bun Install: The Truth Nobody Wants to Admit', link: '/blog/bun/buninstallmess' }
+              ]
+            },
+            {
+              text: 'ElysiaJS Series',
+              collapsed: false,
+              items: [
+                { text: 'Running Where?', link: '/blog/elysiajs/runningwhere' },
+                { text: 'Type Index', link: '/blog/elysiajs/typeindex' },
+                { text: 'Type System', link: '/blog/elysiajs/typesystem' },
+                { text: 'Universal Folder', link: '/blog/elysiajs/universalfolder' },
+                { text: 'Wow Just Wow', link: '/blog/elysiajs/wowjustwow' }
+              ]
+            },
+            {
+              text: 'Piggy Series',
+              collapsed: false,
+              items: [
+                { text: 'How What Where', link: '/blog/piggy/howwhatwhere' }
+              ]
+            }
           ]
         }
       ]

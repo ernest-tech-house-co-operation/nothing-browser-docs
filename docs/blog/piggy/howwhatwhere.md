@@ -1,13 +1,159 @@
-well i see how people ask that how does piggy work well let me chain it up for you 
-piggy the library(nothing browser) does absaloutly nothing importand apart from command creation piggy the whole object we export creates a block of commands to send to the browser when you do something like piggy.eciizen.navigate() it creates a json array of your command and sends it tothe binary which expects it 
-now the main reason this feels instantanious is partially because piggy and the binary talk through a socket unless you initiate the http available in the headless binary. 
+---
+title: "Piggy: How, What, Where"
+date: 2026-05-15
+---
 
-and also my naming is kinda wired i know that so let me tell you why i chose the names 
-well i had absaloutly no reason their is no story behind i just thought what wired nae can sb give to a browser nothing their is no wired name then i just icked nothing browser 
-as for piggy the original idea was just piggy full stop later on it came to me that piggy is kinda the same as iggybacking a real session but piggy does not piggy back on any browser it is esentially a remote control to the binary it does not piggy back on anything so piggy backing is not the theme of pigy i just thought it was a funny name because the python counter part will be called piggy nothin importand it is just a good name for a object export nothing co-operate about thst 
+# Piggy: How, What, Where
 
-my dream for piggy is abit simple and very structred i want piggy to be the best scrping object in the whole oss community and boy i will force issues to make it work which is essentily why i make things easy to use 
+**Let me chain it up for you.**
 
-the thing i cant  understand though is why is pigy compared to puppeter playwrightand others bros come on that is a testing lib and not a scraping lib which esesntially is am not limiting you but come on as of today we are in v0.0.21 and we already beat puppeter at absaloutly everything the world of scraping which is esentially how many people use it for anyway 
-and also puppeter is so darn good at testing your own website but cracking amazon using it that is absaloutly immposible   and please dont use piggy fortesting unless you are tired of waiting 7 minutes of pupeter to download and the trick with piggy is try and be on the latest version of everything be it the binary and the node js library but a simle rule not to forget unless i make a veryvery huge update like from v0.1.21 to v 0.2.0 please update the binary because i do changes in fingerprint generation in huge bumps 
-and also a small version bump like ;ets say from v0.1.14 to 0.1.15 it is not a must you update the binary only if you are satisfied and your current script is working just fine but if you want to test new featuers od get th error piggy.<sitename>.somefunction is undefined that means you are on an old binary version or library or if you get command unknown error(the binary sends such types of errors when you give it an instruction it has 0 idea of ) then update the patch the tiny bumps are mainly either new functions added or just fixes of the current one 
+---
+
+## How Does Piggy Work?
+
+People keep asking this. So here's the truth.
+
+**Piggy the library does ABSOLUTELY NOTHING important apart from command creation.**
+
+The whole object we export — `piggy` — is just a command factory. It creates a block of commands to send to the browser.
+
+When you do something like:
+
+```typescript
+await piggy.amazon.navigate();
+```
+
+Here's what actually happens:
+
+1. Piggy creates a JSON array of your command
+2. Sends it to the binary over a socket
+3. The binary receives it and executes it
+
+That's it. The library is a thin wrapper. A glorified messenger.
+
+```
+┌─────────────────┐     Socket      ┌─────────────────────────┐
+│   Your Code     │ ──────────────► │  Nothing Browser Binary │
+│  piggy.navigate │   JSON command  │  (C++ / Qt6 WebEngine)  │
+└─────────────────┘                 └─────────────────────────┘
+```
+
+**Why does it feel instantaneous?**
+
+Because Piggy and the binary talk through a **socket** (Unix domain socket or Windows named pipe). Fast. Local. No HTTP overhead.
+
+Unless you're using HTTP mode (available in the headless binary for remote VPS deployment). That's a bit slower, but still fast enough.
+
+---
+
+## The Naming (No Deep Story)
+
+My naming is kinda weird. I know that.
+
+Let me tell you why I chose these names:
+
+**Nothing Browser** — I had absolutely no reason. There's no story behind it. I just thought: "What weird name can someone give to a browser?" Nothing. Then I picked Nothing Browser.
+
+**Piggy** — The original idea was just "Piggy." Full stop. Later it came to me that "piggy" sounds like "piggybacking" a real session. But Piggy does NOT piggyback on any browser. It is essentially a remote control to the binary. It doesn't piggyback on anything.
+
+So piggybacking is not the theme. I just thought it was a funny name.
+
+The Python counterpart will also be called Piggy. Nothing important about that. It's just a good name for an export object. Nothing corporate.
+
+---
+
+## My Dream for Piggy
+
+My dream for Piggy is simple and very structured:
+
+> **I want Piggy to be the best scraping object in the whole OSS community.**
+
+And boy, I will force issues to make it work. Which is essentially why I make things easy to use.
+
+One import. 20 lines. Go.
+
+---
+
+## Why Compare Piggy to Puppeteer?
+
+The thing I can't understand: **Why is Piggy compared to Puppeteer, Playwright, and others?**
+
+Bro, come on. Those are **testing libraries**, not scraping libraries.
+
+I'm not limiting you — use whatever you want. But as of today (v0.0.21), we already beat Puppeteer at absolutely everything that matters for scraping.
+
+| Feature | Piggy | Puppeteer |
+|---------|-------|-----------|
+| Library size | ~50KB | ~50MB |
+| Anti-detection | ✅ Built-in | ❌ Plugins needed |
+| Fingerprint spoofing | ✅ DocumentCreation | ❌ Runtime (detectable) |
+| Proxy rotation | ✅ Built-in | ❌ Manual |
+| WebSocket capture | ✅ Built-in | ❌ Manual |
+| Built-in API server | ✅ | ❌ |
+
+**Puppeteer is so darn good at testing YOUR OWN website.** But cracking Amazon using it? That's absolutely impossible.
+
+And please, don't use Piggy for testing — unless you're tired of waiting 7 minutes for Puppeteer to download.
+
+---
+
+## The Golden Rule: Stay Updated
+
+The trick with Piggy is simple:
+
+**Try to be on the latest version of everything — both the binary and the Node.js library.**
+
+But here's the nuance:
+
+### Major Version Bumps (v0.1.21 → v0.2.0)
+
+**MUST update the binary.** I do changes in fingerprint generation in huge bumps. If you don't update, things will break.
+
+### Minor Version Bumps (v0.1.14 → v0.1.15)
+
+**Not a must.** Only update if:
+
+- You want to test new features
+- Your current script is working fine — keep it
+- You're satisfied with what you have — no pressure
+
+### How to Know You Need to Update
+
+| Error Message | What It Means | Fix |
+|---------------|---------------|-----|
+| `piggy.<sitename>.somefunction is undefined` | Old library OR old binary | Update both |
+| `command unknown error` | Binary has NO idea what instruction you sent | Update binary (tiny bump or major) |
+
+The binary sends "command unknown" errors when you give it an instruction it has 0 idea of. That's your cue.
+
+---
+
+## Summary Table
+
+| Situation | Action |
+|-----------|--------|
+| Your code works, you're happy | Do nothing. Keep your versions. |
+| You want new features | Update library + binary together |
+| You get `undefined` errors | Update library first, then binary |
+| You get `command unknown` | Update binary immediately |
+| Major version bump (v0.1.x → v0.2.x) | **MUST update binary** |
+| Tiny patch bump (v0.1.14 → v0.1.15) | Optional |
+
+---
+
+## The Bottom Line
+
+Piggy is simple:
+
+- Thin wrapper over socket commands
+- Binary does the heavy lifting
+- Stay updated for new features
+- Old code keeps working
+
+**One import. 20 lines. Go.**
+
+---
+
+*Nothing Blog. Part of the Nothing Ecosystem.*
+
+*Built by Ernest Tech House · Kenya · 2026*
