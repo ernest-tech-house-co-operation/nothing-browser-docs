@@ -9,7 +9,7 @@ title: Piggy — Headless Browser Library
 Built on Nothing Browser — real BoringSSL TLS, fingerprint spoofing at DocumentCreation, and 100+ APIs for scraping, automation, and data extraction.
 
 > ⚠️ **Version Requirement:** Binary v0.1.14+ | Library v0.0.20+
-> 
+>
 > [Update instructions](./installation) | [Version Compatibility](./version-compatibility)
 
 ---
@@ -42,6 +42,63 @@ await piggy.close();
 | API count | 100+ | ~50 |
 
 **Piggy is just a command mapper** — thin wrapper around the Nothing Browser binary.
+
+---
+
+## Known Issues & Platform Quirks
+
+### 🪟 Windows: `file://` URLs Must Use Triple Slash
+
+On Windows, Qt WebEngine requires `file:///` (three slashes) for local file URLs. Two slashes (`file://`) causes Qt to interpret the drive letter as a hostname, resulting in a silent load failure.
+
+```ts
+// ❌ Wrong — Qt thinks "C" is the hostname
+`file://C:/Users/me/page.html`
+
+// ✅ Correct
+`file:///C:/Users/me/page.html`
+```
+
+Also make sure backslashes are converted to forward slashes:
+
+```ts
+const url = `file:///${join(pagesDir, "page.html").replace(/\\/g, "/")}`
+```
+
+Always prefer `import.meta.dir` over `process.cwd()` for building paths — it's always the script's own folder regardless of where you ran the script from.
+
+---
+
+### 🪟 Windows: The Pipe Bug (Named Pipe Connection Failure)
+
+**Symptom:**
+
+```
+error: connect ENOENT \\.\pipe\piggy
+   errno: -4058,
+ syscall: "connect",
+ address: "\\\\.\\pipe\\piggy",
+    code: "ENOENT"
+```
+
+**What happened:** The Nothing Browser binary spawned successfully, but Windows didn't let it create the named pipe in time — or Windows Defender / UAC blocked the binary from running as a background process entirely.
+
+**The fix:**
+
+1. Open the folder containing your binary (e.g. `piggy-playground/a/`)
+2. Double-click `nothing-browser-headful.exe` directly
+3. If Windows shows a security prompt, click **Run Anyway**
+4. Close the browser window that opens
+5. Re-run your script
+
+This whitelists the binary with Windows so it can spawn freely from scripts.
+
+**Do we know exactly why this happens?** No.  
+**Is it going to be fixed?** Also no.  
+**Does the workaround always work?** Yes.
+**Will you get such errorsfrequently in windows?** Yes.
+
+> This issue only affects Windows. Linux and macOS do not require this step.
 
 ---
 

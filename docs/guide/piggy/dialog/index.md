@@ -19,7 +19,30 @@ The Dialog API handles native browser dialogs and file inputs:
 | `dialog.upload()` | Upload a file | Handle file input elements |
 | `dialog.waitAndAccept()` | Wait then accept | Block until dialog appears |
 | `dialog.waitAndDismiss()` | Wait then dismiss | Block until dialog appears |
-| `dialog.onDialog()` | Dialog event | React to dialogs in real-time |
+| `dialog.onDialog()` | Dialog event listener | React to dialogs in real-time |
+
+---
+
+## ⚠️ Critical: Dialogs Block the Page
+
+Browser dialogs (`alert`, `confirm`, `prompt`) are **synchronous** — they freeze the entire page until dismissed. This means:
+
+- **Never `await` a click that triggers a dialog.** The click will hang forever waiting for a response that can't come because the page is frozen.
+- Always fire dialog-triggering clicks with `.catch(() => {})` and wait manually.
+
+```ts
+// ❌ WRONG — hangs forever
+await piggy.site.click("#delete-btn");
+
+// ✅ CORRECT — fire and forget, then wait
+piggy.site.click("#delete-btn").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
+
+// Now handle the dialog
+await piggy.site.dialog.accept();
+```
+
+This applies to `alert()`, `confirm()`, and `prompt()` — all three block the page.
 
 ---
 
@@ -33,12 +56,14 @@ await piggy.register("site", "https://example.com");
 
 await piggy.site.navigate();
 
-// Click button that triggers an alert
-await piggy.site.click("#delete-btn");
+// Fire click without awaiting — dialog will block the page
+piggy.site.click("#delete-btn").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
 
 // Check if dialog is pending
 const status = await piggy.site.dialog.status();
-console.log(status); // { pending: true, type: "confirm", message: "Are you sure?", defaultValue: "" }
+console.log(status);
+// { pending: true, type: "confirm", message: "Are you sure?", defaultValue: "" }
 
 // Accept the dialog (click OK)
 await piggy.site.dialog.accept();
@@ -59,7 +84,7 @@ await piggy.site.dialog.accept();
 
 ---
 
-## Handle Dialogs
+## API Reference
 
 ### `dialog.accept(text?)`
 
@@ -70,8 +95,10 @@ Accepts the current dialog (clicks OK). For prompt dialogs, you can provide inpu
 await piggy.site.dialog.accept();
 
 // Accept prompt with custom input
-await piggy.site.dialog.accept("User input text");
+await piggy.site.dialog.accept("my custom input");
 ```
+
+---
 
 ### `dialog.dismiss()`
 
@@ -81,18 +108,26 @@ Dismisses/cancels the current dialog (clicks Cancel).
 await piggy.site.dialog.dismiss();
 ```
 
+---
+
 ### `dialog.status()`
 
-Returns information about the current dialog.
+Returns information about the current dialog state.
 
 ```ts
 const status = await piggy.site.dialog.status();
 // { pending: true, type: "confirm", message: "Save changes?", defaultValue: "" }
+
+if (status.pending) {
+  console.log(`Dialog waiting: ${status.type} — "${status.message}"`);
+}
 ```
 
-### `dialog.setAutoAction(tabId?, action)`
+---
 
-Sets automatic handling for all future dialogs.
+### `dialog.setAutoAction(action)`
+
+Sets automatic handling for all future dialogs on this tab. Piggy will accept or dismiss dialogs without you needing to call `accept()` / `dismiss()` manually.
 
 ```ts
 // Auto-accept all dialogs
@@ -101,74 +136,77 @@ await piggy.site.dialog.setAutoAction("accept");
 // Auto-dismiss all dialogs
 await piggy.site.dialog.setAutoAction("dismiss");
 
-// Disable auto-handling (manual mode)
+// Disable auto-handling (switch to manual / event mode)
 await piggy.site.dialog.setAutoAction("");
 ```
 
----
+> With auto-action set, dialog-triggering clicks still need to be fire-and-forget — the page is still frozen until Qt handles the dialog internally.
 
-## File Upload
+---
 
 ### `dialog.upload(selector, filePath)`
 
-Uploads a file to a file input element.
+Uploads a file to a file input element by injecting it via a `DataTransfer` object. Works without triggering the OS file picker.
 
 ```ts
-// Upload a single file
-await piggy.site.dialog.upload("#avatar", "/home/user/photo.jpg");
+// Upload a text file
+await piggy.site.dialog.upload("#file-input", "/path/to/file.txt");
 
-// Upload multiple files (use multiple attribute)
-await piggy.site.dialog.upload("#gallery", "/home/user/photo1.jpg");
-await piggy.site.dialog.upload("#gallery", "/home/user/photo2.jpg");
+// Upload an image
+await piggy.site.dialog.upload("#avatar", "/path/to/photo.png");
 ```
+
+**Supported file types:** `.txt`, `.pdf`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.csv`, `.json` — plus any file as `application/octet-stream`.
+
+> The file must exist on disk. C++ reads it directly and injects it into the page as a `File` object.
 
 ---
 
-## Wait for Dialogs
-
 ### `dialog.waitAndAccept(timeout?, text?)`
 
-Waits for a dialog to appear, then accepts it.
+Waits for a dialog to appear, then accepts it. Useful when you're not sure exactly when a dialog will show up.
 
 ```ts
-// Click button that shows a delayed dialog
-await piggy.site.click("#delete-btn");
-
-// Wait up to 5 seconds for dialog, then accept
+// Click, then wait up to 5s for a dialog and accept it
+piggy.site.click("#delete-btn").catch(() => {});
 const result = await piggy.site.dialog.waitAndAccept(5000);
-console.log(result); // { type: "confirm", message: "Are you sure?", accepted: true }
+console.log(result);
+// { dialogType: "confirm", message: "Are you sure?", ... }
 ```
+
+---
 
 ### `dialog.waitAndDismiss(timeout?)`
 
 Waits for a dialog to appear, then dismisses it.
 
 ```ts
-await piggy.site.click("#cancel-btn");
+piggy.site.click("#cancel-btn").catch(() => {});
 const result = await piggy.site.dialog.waitAndDismiss(5000);
-// { type: "confirm", message: "Cancel changes?", dismissed: true }
 ```
 
 ---
 
-## Events
-
 ### `dialog.onDialog(tabId, handler)`
 
-Triggered when any dialog appears.
+Registers an event listener that fires whenever a dialog appears. Returns an unsubscribe function.
 
 ```ts
-piggy.dialog.onDialog("default", (data) => {
-  console.log(`Dialog detected: ${data.dialogType}`);
-  console.log(`Message: ${data.message}`);
-  console.log(`Default value: ${data.defaultValue}`);
-  
-  // Auto-accept confirm dialogs
-  if (data.dialogType === "confirm") {
-    piggy.site.dialog.accept();
+const unsub = piggy.site.dialog.onDialog("default", async (e) => {
+  console.log(`Dialog: ${e.dialogType} — "${e.message}"`);
+
+  if (e.dialogType === "confirm") {
+    await piggy.site.dialog.accept();
+  } else if (e.dialogType === "prompt") {
+    await piggy.site.dialog.accept("Pease Ernest");
   }
 });
+
+// Later — stop listening
+unsub();
 ```
+
+> **Note:** `onDialog` requires `setAutoAction("")` to be set first, otherwise Qt handles the dialog before the event reaches your handler.
 
 ---
 
@@ -184,191 +222,133 @@ await piggy.register("app", "https://example.com");
 await piggy.app.dialog.setAutoAction("accept");
 
 await piggy.app.navigate();
-await piggy.app.click("#delete-all");  // Confirm dialog auto-accepted
-await piggy.app.click("#save");        // Alert auto-accepted
-```
 
-### Example 2: Handle Confirm Based on Condition
+// Fire clicks without awaiting
+piggy.app.click("#delete-all").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
 
-```ts
-await piggy.app.navigate();
-await piggy.app.click("#delete-item");
-
-const status = await piggy.app.dialog.status();
-
-if (status.type === "confirm" && status.message.includes("permanently")) {
-  // Dangerous action — dismiss
-  await piggy.app.dialog.dismiss();
-  console.log("Cancelled dangerous deletion");
-} else {
-  // Safe action — accept
-  await piggy.app.dialog.accept();
-}
-```
-
-### Example 3: File Upload with Preview
-
-```ts
-await piggy.app.navigate("https://example.com/upload");
-
-// Upload file
-await piggy.app.dialog.upload("#file-input", "./screenshot.png");
-
-// Wait for preview to load
-await piggy.app.wait.selector({ selector: ".image-preview", state: "visible" });
-
-// Submit form
-await piggy.app.click("#submit");
-
-// Handle success alert
-await piggy.app.dialog.waitAndAccept(5000);
-console.log("Upload complete");
-```
-
-### Example 4: Prompt Dialog with User Input
-
-```ts
-await piggy.app.click("#rename");
-
-// Wait for prompt
-const status = await piggy.app.dialog.status();
-
-if (status.type === "prompt") {
-  console.log(`Prompt message: ${status.message}`);
-  
-  // Enter new name and accept
-  await piggy.app.dialog.accept("new-filename.txt");
-  
-  console.log("File renamed");
-}
-```
-
-### Example 5: Comprehensive Dialog Handler
-
-```ts
-import piggy, { usePiggy } from "nothing-browser";
-
-await piggy.launch({ mode: "tab", binary: "headful" });
-await piggy.register("app", "https://example.com");
-
-const { app } = usePiggy<"app">();
-
-// Set up dialog event listener
-piggy.dialog.onDialog("default", async (data) => {
-  console.log(`[Dialog] ${data.dialogType}: ${data.message}`);
-  
-  switch (data.dialogType) {
-    case "alert":
-      console.log("Just info, accepting...");
-      await app.dialog.accept();
-      break;
-      
-    case "confirm":
-      if (data.message.includes("delete") || data.message.includes("remove")) {
-        console.log("Dangerous action, dismissing...");
-        await app.dialog.dismiss();
-      } else {
-        console.log("Safe action, accepting...");
-        await app.dialog.accept();
-      }
-      break;
-      
-    case "prompt":
-      console.log(`Prompt with default: "${data.defaultValue}"`);
-      await app.dialog.accept("auto-filled-value");
-      break;
-  }
-});
-
-await app.navigate();
-
-// These will be handled automatically by the event handler
-await app.click("#delete-btn");
-await app.click("#save-btn");
-await app.click("#rename-btn");
-
-console.log("All dialogs handled");
-```
-
-### Example 6: Retry on Dialog
-
-```ts
-async function submitWithRetry(site: any, maxRetries = 3) {
-  for (let i = 0; i < maxRetries; i++) {
-    await site.click("#submit");
-    
-    try {
-      const status = await site.dialog.status();
-      
-      if (status.pending && status.message.includes("invalid")) {
-        console.log(`Validation failed, retry ${i + 1}/${maxRetries}`);
-        await site.dialog.accept();
-        
-        // Fix form data
-        await site.type("#email", "valid@email.com");
-        continue;
-      }
-      
-      // Success — accept and break
-      if (status.pending) {
-        await site.dialog.accept();
-      }
-      return true;
-      
-    } catch {
-      // No dialog, submission succeeded
-      return true;
-    }
-  }
-  
-  return false;
-}
-
-const success = await submitWithRetry(piggy.app);
-console.log(success ? "Form submitted" : "Failed after retries");
-```
-
-### Example 7: Upload Multiple Files
-
-```ts
-async function uploadMultipleFiles(site: any, selector: string, files: string[]) {
-  for (const file of files) {
-    await site.dialog.upload(selector, file);
-    await site.wait(500);  // Small delay between uploads
-    console.log(`Uploaded: ${file}`);
-  }
-}
-
-await uploadMultipleFiles(piggy.app, "#gallery", [
-  "./img/photo1.jpg",
-  "./img/photo2.jpg",
-  "./img/photo3.jpg"
-]);
-
-await piggy.app.click("#submit");
+piggy.app.click("#save").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
 ```
 
 ---
 
-## API Reference
+### Example 2: Handle Confirm Based on Message Content
 
-### Dialog Methods
+```ts
+await piggy.app.navigate();
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `dialog.accept(text?)` | `text?: string` | `Promise<void>` | Accept dialog (OK). For prompt, provide input text |
-| `dialog.dismiss()` | — | `Promise<void>` | Dismiss dialog (Cancel) |
-| `dialog.status()` | — | `Promise<DialogStatus>` | Get current dialog state |
-| `dialog.setAutoAction(action)` | `action: "accept" \| "dismiss" \| ""` | `Promise<void>` | Auto-handle future dialogs |
-| `dialog.upload(selector, filePath)` | `selector: string, filePath: string` | `Promise<void>` | Upload file to input |
-| `dialog.waitAndAccept(timeout?, text?)` | `timeout?: number, text?: string` | `Promise<DialogResult>` | Wait for dialog, then accept |
-| `dialog.waitAndDismiss(timeout?)` | `timeout?: number` | `Promise<DialogResult>` | Wait for dialog, then dismiss |
+piggy.app.click("#delete-item").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
 
-### Event Handler
+const status = await piggy.app.dialog.status();
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `dialog.onDialog(tabId, handler)` | `tabId: string, handler: (data) => void` | `() => void` | Dialog event listener |
+if (status.pending && status.message.includes("permanently")) {
+  await piggy.app.dialog.dismiss();
+  console.log("Cancelled dangerous deletion");
+} else if (status.pending) {
+  await piggy.app.dialog.accept();
+  console.log("Accepted safe action");
+}
+```
+
+---
+
+### Example 3: File Upload with Verification
+
+```ts
+await piggy.app.navigate("https://example.com/upload");
+await piggy.app.waitForSelector("#file-input");
+
+// Upload file — no OS picker needed
+await piggy.app.dialog.upload("#file-input", "./report.pdf");
+
+// Verify filename appeared in the page
+await new Promise(r => setTimeout(r, 300));
+const shown = await piggy.app.provide.text({ selector: "#file-name" });
+console.log(`Page shows: "${shown}"`); // "report.pdf"
+```
+
+---
+
+### Example 4: Prompt Dialog with Custom Input
+
+```ts
+piggy.app.click("#rename-btn").catch(() => {});
+await new Promise(r => setTimeout(r, 800));
+
+const status = await piggy.app.dialog.status();
+
+if (status.pending && status.type === "prompt") {
+  console.log(`Prompt: "${status.message}" (default: "${status.defaultValue}")`);
+  await piggy.app.dialog.accept("new-filename.txt");
+  console.log("File renamed ✓");
+}
+```
+
+---
+
+### Example 5: Event-Based Dialog Handler
+
+```ts
+await piggy.launch({ mode: "tab", binary: "headful" });
+await piggy.register("app", "https://example.com");
+
+// Switch to manual/event mode first
+await piggy.app.dialog.setAutoAction("");
+
+const unsub = piggy.app.dialog.onDialog("default", async (e) => {
+  console.log(`[Dialog] ${e.dialogType}: ${e.message}`);
+
+  switch (e.dialogType) {
+    case "alert":
+      await piggy.app.dialog.accept();
+      break;
+
+    case "confirm":
+      if (e.message.toLowerCase().includes("delete")) {
+        await piggy.app.dialog.dismiss();
+      } else {
+        await piggy.app.dialog.accept();
+      }
+      break;
+
+    case "prompt":
+      await piggy.app.dialog.accept("auto-filled-value");
+      break;
+  }
+});
+
+await piggy.app.navigate();
+
+piggy.app.click("#delete-btn").catch(() => {});
+await new Promise(r => setTimeout(r, 1000));
+
+piggy.app.click("#rename-btn").catch(() => {});
+await new Promise(r => setTimeout(r, 1000));
+
+unsub(); // stop listening
+```
+
+---
+
+### Example 6: Upload Multiple Files
+
+```ts
+const files = [
+  "./img/photo1.jpg",
+  "./img/photo2.jpg",
+  "./img/photo3.jpg",
+];
+
+for (const file of files) {
+  await piggy.app.dialog.upload("#gallery", file);
+  await new Promise(r => setTimeout(r, 300));
+  console.log(`Uploaded: ${file}`);
+}
+
+await piggy.app.click("#submit");
+```
 
 ---
 
@@ -377,17 +357,9 @@ await piggy.app.click("#submit");
 ```ts
 interface DialogStatus {
   pending: boolean;
-  type: "alert" | "confirm" | "prompt" | null;
+  type: "alert" | "confirm" | "prompt" | "";
   message: string;
   defaultValue: string;
-}
-
-interface DialogResult {
-  type: "alert" | "confirm" | "prompt";
-  message: string;
-  accepted?: boolean;
-  dismissed?: boolean;
-  input?: string;
 }
 
 interface DialogEventData {
@@ -400,50 +372,22 @@ interface DialogEventData {
 
 ---
 
-## Best Practices
+## Common Mistakes
 
-### Use Auto-Action for Known Sites
-
-```ts
-// If you know all dialogs are safe to accept
-await piggy.site.dialog.setAutoAction("accept");
-```
-
-### Handle Conditional Responses
-
-```ts
-const status = await piggy.site.dialog.status();
-if (status.message.includes("delete")) {
-  await piggy.site.dialog.dismiss();  // Be careful with deletions
-} else {
-  await piggy.site.dialog.accept();
-}
-```
-
-### Always Wait for Navigation After Dialogs
-
-```ts
-await piggy.site.click("#submit");
-await piggy.site.dialog.accept();
-await piggy.site.waitForNavigation();  // Dialog may trigger navigation
-```
-
-### Use Events for Complex Logic
-
-```ts
-piggy.dialog.onDialog("default", async (data) => {
-  // Centralized dialog handling
-  await handleDialog(data);
-});
-```
+| Mistake | Fix |
+|---------|-----|
+| `await piggy.site.click("#btn")` when btn triggers a dialog | Use `.catch(() => {})` and wait manually |
+| Calling `onDialog` without `setAutoAction("")` first | Set `setAutoAction("")` before registering listener |
+| Passing wrong `tabId` to `dialog.upload()` | Use `piggy.site._tabId` or omit tabId (uses site's own tab) |
+| Expecting `onDialog` events for auto-accepted dialogs | Auto-action handles silently — events only fire in manual mode |
 
 ---
 
 ## Next Steps
 
-- [Captcha API](./captcha) — Handle CAPTCHA and block detection
-- [Human API](./human) — Human-like behavior to avoid dialogs
-- [Interactions](./click) — Click, type, hover
+- [Captcha API](../captcha) — Handle CAPTCHA and block detection
+- [Human API](../human) — Human-like behavior
+- [Interactions](../click) — Click, type, hover
 
 ---
 

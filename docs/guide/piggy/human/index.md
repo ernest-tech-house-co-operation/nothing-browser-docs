@@ -37,17 +37,25 @@ When `piggy.actHuman(true)` is enabled, these defaults apply:
 
 ## Configure Human Profile
 
-### `human.set(opts, tabId?)`
+### `human.set(opts)`
 
-Sets the human behavior profile for a specific tab.
+Sets the human behavior profile for a tab. You can call it multiple times mid-session to switch between profiles — e.g. start cautious for login, then switch to fast for navigation.
 
 ```ts
-// Set custom profile
-await piggy.site.human.set({
-  typingSpeed: "slow",    // "slow" | "normal" | "fast"
-  clickDelay: "cautious", // "cautious" | "normal" | "fast"
-  scrollSpeed: "slow",    // "slow" | "normal" | "fast"
-  mouseWiggle: true       // Add small mouse movements
+// Cautious profile — slow typing, big click delays, mouse wiggle
+// Good for login forms and sensitive interactions
+await piggy.quotes.human.set({
+  typingSpeed: "slow",
+  clickDelay:  "cautious",
+  scrollSpeed: "normal",
+  mouseWiggle: true,
+});
+
+// Switch to fast profile later in the same session
+await piggy.quotes.human.set({
+  typingSpeed: "fast",
+  clickDelay:  "fast",
+  mouseWiggle: false,
 });
 ```
 
@@ -60,14 +68,19 @@ await piggy.site.human.set({
 | `scrollSpeed` | `"slow"` (800-1500ms), `"normal"` (400-800ms), `"fast"` (150-400ms) | Scroll animation duration |
 | `mouseWiggle` | `true` / `false` | Add small random mouse movements |
 
-### `human.get(tabId?)`
+### `human.get()`
 
-Returns the current human behavior profile.
+Returns the current human behavior profile. Useful to verify the profile was applied correctly after `human.set()`.
 
 ```ts
-const profile = await piggy.site.human.get();
+const profile = await piggy.quotes.human.get();
 console.log(profile);
-// { typingSpeed: "normal", clickDelay: "normal", scrollSpeed: "normal", mouseWiggle: false }
+// {
+//   clickDelay: "cautious",
+//   mouseWiggle: true,
+//   scrollSpeed: "normal",
+//   typingSpeed: "slow",
+// }
 ```
 
 ---
@@ -86,32 +99,21 @@ Types text with human-like behavior (variable speed, occasional typos).
 | `speed` | `number` | `null` | Override profile speed (ms between keys) |
 
 ```ts
-// Type with profile settings
-await piggy.site.human.type({
-  selector: "#search",
-  text: "wireless headphones"
-});
+// Basic type — uses profile speed (slow = 150-300ms/char)
+await piggy.quotes.human.type({ selector: "#username", text: "admin" });
 
-// Clear field first
-await piggy.site.human.type({
-  selector: "#email",
-  text: "user@example.com",
-  clear: true
-});
+// clear: true wipes the field before typing — use when re-entering a value
+await piggy.quotes.human.type({ selector: "#password", text: "wrongpassword", clear: true });
 
-// Override speed (100ms between keys)
-await piggy.site.human.type({
-  selector: "#comment",
-  text: "This is a review.",
-  speed: 100
-});
+// speed overrides the profile — 40ms between keys regardless of typingSpeed setting
+await piggy.quotes.human.type({ selector: "#password", text: "admin", clear: true, speed: 40 });
 ```
 
 ---
 
 ## Human-Like Click
 
-### `human.click({ selector, force?, delay? })`
+### `human.click({ selector, force? })`
 
 Clicks an element with human-like delay and mouse movement.
 
@@ -119,307 +121,83 @@ Clicks an element with human-like delay and mouse movement.
 |-----------|------|---------|-------------|
 | `selector` | `string` | **Required** | CSS selector of element |
 | `force` | `boolean` | `false` | Force click even if element is hidden |
-| `delay` | `number` | `null` | Override profile delay (ms before click) |
 
 ```ts
-// Click with profile settings
-await piggy.site.human.click({ selector: ".buy-now" });
+// Standard human click — respects clickDelay from profile
+// In demo: cautious profile = 300-600ms delay before click, took 615ms total
+await piggy.quotes.human.click({ selector: "input[type='submit']" });
 
-// Force click hidden element
-await piggy.site.human.click({ 
-  selector: ".hidden-button", 
-  force: true 
-});
-
-// Override delay
-await piggy.site.human.click({ 
-  selector: "#submit", 
-  delay: 800 
-});
+// force: true clicks even if the element isn't fully visible
+// Used here for a pagination link that may be off-screen
+await piggy.quotes.human.click({ selector: "li.next a", force: true });
 ```
 
 ---
 
-## Real-World Examples
-
-### Example 1: Complete Human-Like Search Flow
+## Full Example
 
 ```ts
-await piggy.launch({ mode: "tab", binary: "headful" });
+import piggy from "nothing-browser"
+import path from "path";
 
-// Configure human profile
-await piggy.site.human.set({
-  typingSpeed: "normal",
-  clickDelay: "cautious",
-  scrollSpeed: "normal",
-  mouseWiggle: true
-});
+const binaryPath = path.resolve(import.meta.dir, "../a/nothing-browser-headful.exe");
 
-await piggy.register("google", "https://google.com");
-await piggy.google.navigate();
+await piggy.launch({ mode: "tab", binary: binaryPath });
+await piggy.register("quotes", "https://quotes.toscrape.com");
 
-// Natural search behavior
-await piggy.google.human.click({ selector: "textarea[name='q']" });
-await piggy.google.human.type({ 
-  selector: "textarea[name='q']", 
-  text: "best laptops 2024",
-  clear: true
-});
-
-await piggy.google.wait(600);  // Think time
-await piggy.google.keyboard.press("Enter");
-await piggy.google.waitForNavigation();
-
-// Scroll through results naturally
-for (let i = 0; i < 3; i++) {
-  await piggy.google.wait(1200);
-  await piggy.google.scroll.by(400);
-}
-
-// Click result with human timing
-await piggy.google.wait(800);
-await piggy.google.human.click({ selector: "h3" });
-```
-
-### Example 2: Natural Form Filling
-
-```ts
-await piggy.register("form", "https://example.com/signup");
-await piggy.form.navigate();
-
-await piggy.form.human.set({ typingSpeed: "slow", clickDelay: "cautious" });
-
-// Fill form naturally
-await piggy.form.human.type({ selector: "#first-name", text: "John", clear: true });
-await piggy.form.wait(200);  // Pause between fields
-
-await piggy.form.human.type({ selector: "#last-name", text: "Doe", clear: true });
-await piggy.form.wait(200);
-
-await piggy.form.human.type({ selector: "#email", text: "john.doe@example.com", clear: true });
-await piggy.form.wait(200);
-
-await piggy.form.human.type({ selector: "#phone", text: "555-123-4567", clear: true });
-
-// Natural field navigation
-await piggy.form.keyboard.press("Tab");
-await piggy.form.wait(150);
-await piggy.form.keyboard.press("Tab");
-
-// Select dropdown with hesitation
-await piggy.form.wait(500);
-await piggy.form.human.click({ selector: "#country" });
-await piggy.form.wait(400);
-await piggy.form.select("#country", "US");
-
-// Check checkbox naturally
-await piggy.form.scroll.to("#terms");
-await piggy.form.wait(300);
-await piggy.form.human.click({ selector: "#terms" });
-
-// Submit
-await piggy.form.wait(500);
-await piggy.form.human.click({ selector: "#submit" });
-```
-
-### Example 3: Shopping Cart with Human Timing
-
-```ts
-await piggy.register("shop", "https://books.toscrape.com");
-await piggy.shop.navigate();
-
-await piggy.shop.human.set({ 
-  typingSpeed: "normal", 
-  clickDelay: "normal",
-  mouseWiggle: true 
-});
-
-// Browse like a human
-await piggy.shop.wait(1500);
-
-// Hover over menu
-await piggy.shop.hover(".nav-menu");
-await piggy.shop.wait(400);
-await piggy.shop.click("a:contains('Books')");
-
-// Read products and add to cart
-const products = await piggy.shop.fetch.links({ query: ".product_pod h3 a" });
-
-for (let i = 0; i < Math.min(3, products.length); i++) {
-  await piggy.shop.human.click({ selector: `.product_pod:eq(${i}) h3 a` });
-  await piggy.shop.waitForNavigation();
-  
-  // Read product page
-  await piggy.shop.wait(2000);
-  
-  // Add to cart with hesitation (70% chance)
-  if (Math.random() < 0.7) {
-    await piggy.shop.wait(500);
-    await piggy.shop.human.click({ selector: ".btn-add-to-basket" });
-    await piggy.shop.wait(800);
-    console.log(`Added product ${i + 1} to cart`);
-  }
-  
-  await piggy.shop.goBack();
-  await piggy.shop.wait(1000);
-}
-
-// Go to cart
-await piggy.shop.human.click({ selector: ".cart-link" });
-await piggy.shop.waitForNavigation();
-
-// Review cart
-await piggy.shop.wait(2000);
-await piggy.shop.scroll.by(300);
-await piggy.shop.wait(1000);
-```
-
-### Example 4: Custom Typing with Typos
-
-```ts
-// Human typing naturally includes occasional typos
-await piggy.site.human.type({
-  selector: "#search",
-  text: "wireless headphones",
-  clear: true
-});
-// Types: w i r e l e s s [pause] h e a d p h o n e s
-// May include: w i r e l e s s [backspace] [backspace] s s
-
-// For critical fields where typos are unacceptable, use normal type
-await piggy.site.type("#email", "user@example.com");  // Perfect typing
-```
-
-### Example 5: Adaptive Profile by Site
-
-```ts
-// Different profiles for different sites
-const profiles = {
-  google: { typingSpeed: "fast", clickDelay: "fast", scrollSpeed: "fast", mouseWiggle: false },
-  amazon: { typingSpeed: "normal", clickDelay: "normal", scrollSpeed: "normal", mouseWiggle: true },
-  banking: { typingSpeed: "slow", clickDelay: "cautious", scrollSpeed: "slow", mouseWiggle: true }
-};
-
-await piggy.register("google", "https://google.com");
-await piggy.register("amazon", "https://amazon.com");
-await piggy.register("bank", "https://mybank.com");
-
-await piggy.google.human.set(profiles.google);
-await piggy.amazon.human.set(profiles.amazon);
-await piggy.bank.human.set(profiles.banking);
-```
-
-### Example 6: Disable Human Mode for API
-
-```ts
-// Disable human mode for API endpoints (speed matters)
-piggy.actHuman(false);
-
-await piggy.site.api("/fast-search", async (_params, query) => {
-  // Fast, predictable execution
-  await piggy.site.navigate(`https://example.com/search?q=${query.q}`);
-  const results = await piggy.site.provide.textAll({ selector: ".result" });
-  return { count: results.length, results };
-});
-
-// Re-enable for user-facing scraping
+// Enable global human mode
 piggy.actHuman(true);
-```
 
-### Example 7: Custom Human Scroll
-
-```ts
-async function humanScroll(site: any, targetY: number) {
-  const currentY = await site.evaluate(() => window.scrollY);
-  const distance = targetY - currentY;
-  const duration = 500 + Math.random() * 1000;
-  const startTime = Date.now();
-  
-  while (Date.now() - startTime < duration) {
-    const elapsed = Date.now() - startTime;
-    const t = Math.min(1, elapsed / duration);
-    const ease = 1 - Math.pow(1 - t, 3);
-    const y = currentY + distance * ease;
-    
-    await site.scroll.to(Math.floor(y));
-    await site.wait(16);
-    
-    // Random pause mid-scroll
-    if (Math.random() < 0.1) {
-      await site.wait(100 + Math.random() * 300);
-    }
-  }
-  
-  await site.scroll.to(targetY);
-}
-
-// Use with human profile
-await piggy.site.human.set({ scrollSpeed: "slow" });
-await humanScroll(piggy.site, 1000);
-```
-
----
-
-## Profile Presets
-
-### Default (Normal)
-```ts
-{
-  typingSpeed: "normal",
-  clickDelay: "normal",
+// Set human profile
+await piggy.quotes.human.set({
+  typingSpeed: "slow",
+  clickDelay:  "cautious",
   scrollSpeed: "normal",
-  mouseWiggle: false
-}
-```
+  mouseWiggle: true,
+});
 
-### Cautious (Harder to Detect)
-```ts
-{
-  typingSpeed: "slow",
-  clickDelay: "cautious",
-  scrollSpeed: "slow",
-  mouseWiggle: true
-}
-```
+// Read profile back
+const profile = await piggy.quotes.human.get();
+console.log("Human profile:", profile);
 
-### Fast (Development)
-```ts
-{
+// Navigate and interact
+await piggy.quotes.navigate("https://quotes.toscrape.com/login");
+await piggy.quotes.waitForSelector("#username");
+
+await piggy.quotes.human.type({ selector: "#username", text: "admin" });
+await piggy.quotes.human.type({ selector: "#password", text: "admin", clear: true, speed: 40 });
+
+await piggy.quotes.human.click({ selector: "input[type='submit']" });
+await piggy.quotes.waitForNavigation();
+
+// Switch to fast profile
+await piggy.quotes.human.set({
   typingSpeed: "fast",
-  clickDelay: "fast",
-  scrollSpeed: "fast",
-  mouseWiggle: false
-}
-```
+  clickDelay:  "fast",
+  mouseWiggle: false,
+});
 
-### Stealth (Maximum Anti-Detection)
-```ts
-{
-  typingSpeed: "slow",
-  clickDelay: "cautious",
-  scrollSpeed: "slow",
-  mouseWiggle: true
-}
+// Force click
+await piggy.quotes.navigate("https://quotes.toscrape.com");
+await piggy.quotes.waitForSelector(".quote");
+await piggy.quotes.human.click({ selector: "li.next a", force: true });
+await piggy.quotes.waitForNavigation();
+console.log("Current URL:", piggy.quotes.url());
+
+await piggy.close();
 ```
 
 ---
 
 ## API Reference
 
-### Human Methods
-
 | Method | Parameters | Returns | Description |
 |--------|------------|---------|-------------|
-| `human.set(opts, tabId?)` | `{ typingSpeed?, clickDelay?, scrollSpeed?, mouseWiggle? }` | `Promise<HumanProfile>` | Set profile |
-| `human.get(tabId?)` | — | `Promise<HumanProfile>` | Get profile |
-| `human.type({ selector, text, clear?, speed? }, tabId?)` | `{ selector, text, clear?, speed? }` | `Promise<void>` | Human-like typing |
-| `human.click({ selector, force?, delay? }, tabId?)` | `{ selector, force?, delay? }` | `Promise<boolean>` | Human-like click |
-
-### Global Control
-
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `piggy.actHuman(enable)` | `enable: boolean` | `piggy` | Enable/disable default human mode |
+| `human.set(opts)` | `{ typingSpeed?, clickDelay?, scrollSpeed?, mouseWiggle? }` | `Promise<HumanProfile>` | Set profile |
+| `human.get()` | — | `Promise<HumanProfile>` | Get profile |
+| `human.type(opts)` | `{ selector, text, clear?, speed? }` | `Promise<void>` | Human-like typing |
+| `human.click(opts)` | `{ selector, force? }` | `Promise<void>` | Human-like click |
+| `piggy.actHuman(enable)` | `enable: boolean` | `piggy` | Enable/disable global human mode |
 
 ---
 
@@ -427,27 +205,26 @@ await humanScroll(piggy.site, 1000);
 
 ```ts
 type TypingSpeed = "slow" | "normal" | "fast";
-type ClickDelay = "cautious" | "normal" | "fast";
+type ClickDelay  = "cautious" | "normal" | "fast";
 type ScrollSpeed = "slow" | "normal" | "fast";
 
 interface HumanProfile {
   typingSpeed: TypingSpeed;
-  clickDelay: ClickDelay;
+  clickDelay:  ClickDelay;
   scrollSpeed: ScrollSpeed;
   mouseWiggle: boolean;
 }
 
 interface HumanTypeOptions {
   selector: string;
-  text: string;
-  clear?: boolean;
-  speed?: number;  // Override profile, ms between keys
+  text:     string;
+  clear?:   boolean;
+  speed?:   number;
 }
 
 interface HumanClickOptions {
   selector: string;
-  force?: boolean;
-  delay?: number;  // Override profile, ms before click
+  force?:   boolean;
 }
 ```
 
@@ -458,4 +235,4 @@ interface HumanClickOptions {
 
 ---
 
-*Nothing Ecosystem · Ernest Tech House · Kenya · 2026*                     
+*Nothing Ecosystem · Ernest Tech House · Kenya · 2026*

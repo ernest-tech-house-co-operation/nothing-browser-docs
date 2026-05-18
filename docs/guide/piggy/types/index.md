@@ -6,6 +6,19 @@ Full TypeScript type definitions for the Piggy API. Use these for type-safe deve
 
 ---
 
+> ## 🚧 Upcoming Migration Notice
+>
+> **Piggy is migrating from `.ts` to `.js`.**
+> Full autocomplete and IntelliSense will be available via a dedicated types package coming in the near future:
+>
+> ```bash
+> npm install nothing-browser-types
+> ```
+>
+> Stay tuned — the new package will ship standalone type definitions so you get full IDE support without TypeScript as a hard dependency.
+
+---
+
 ## Core Types
 
 ### Launch & Connect Options
@@ -790,6 +803,7 @@ interface Piggy {
   };
   
   // Sub-API clients
+  tab: TabsClient;      // alias for tabs
   tabs: TabsClient;
   navigation: NavigationClient;
   interactions: InteractionsClient;

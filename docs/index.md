@@ -88,17 +88,10 @@ features:
 ---
 
 <div class="version-warning">
-  <div class="warning-icon">⚠️</div>
-  <div class="warning-content">
-    <strong>Important Version Notice</strong><br>
-    <strong>Piggy library v0.1.0 is buggy.</strong> Please stick with <strong>v0.0.20+</strong> for now.<br>
-    Use <code>bun add nothing-browser@0.0.21</code> to get the stable library version.<br><br>
-    <strong>Binary version v0.1.14 are buggy.</strong> Please download <strong>v0.1.13 or lower</strong>.<br>
-    <strong> fixes are being worked on as of now and this notice will be removed when they are stable enough</strong>
-    Download from <a href="https://github.com/BunElysiaReact/nothing-browser/releases" target="_blank" style="color: #ff8888;">GitHub Releases</a>.
-  </div>
+  <div> all known issues were fixed enjoy</div>
+  
 </div>
-
+         
 <div class="ecosystem-stats">
   <div class="stat">
     <span class="stat-number">3</span>
