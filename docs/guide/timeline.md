@@ -1,4 +1,3 @@
-```markdown
 # Development Timeline
 
 ## Current Status (2026)
@@ -122,5 +121,63 @@ Piggy already handles hard targets — Cloudflare, dialogs, iframes, authenticat
 
 ---
 
-*Nothing Ecosystem · Ernest Tech House · Kenya · 2026*
+#### 🪶 Minified Binary (XXX-mini)
+*Tiny footprint for simple, unprotected targets.*
+
+A stripped-down Chromium binary in the **50–70 MB range** (no promises), built specifically for sites that don't need heavy evasion. No bells, no whistles — just a lean browser you can ship anywhere. It will be patched like the main binary, but global-scale anti-bot evasion is not its goal. If your target doesn't fight back, this is your binary.
+
+---
+
+#### 🪟 Windows 8 Support
+*Because Node runs on it, and a scraper server is a scraper server.*
+
+A Piggy build targeting Windows 8 compatibility. Realistically this is useful as a headless server environment rather than a daily driver. Node.js support is the key enabler here — if the runtime runs, Piggy can run.
+
+---
+
+#### ⚡ `nth` — The Nothing Runtime
+*One job. Run JS. Fast.*
+
+`nth` is a JavaScript runner with a single, uncompromising purpose: run your script as fast as possible and get out of the way. The interface is as simple as it gets:
+
+```bash
+nth index.js
 ```
+
+It doesn't bundle axios. It doesn't have opinions about your project structure. It doesn't try to be a package manager, a bundler, a test runner, or a deployment tool. It runs JS. That's it.
+
+**How it works:**
+
+`nth` piggybacks on the JS ecosystem you already have. You configure your preferred engine in `nth.config` at your project root:
+
+```json
+{
+  "packageManager": "pnpm"
+}
+```
+
+Valid options: `node`, `npm`, `pnpm`, `bun`, `deno`. When you run `nth index.js`, it resolves your config and delegates to whatever you've set. The magic isn't in reinventing the wheel — it's in being the thinnest possible layer on top of tools that already work.
+
+**Why it exists:**
+
+Bun proved something important: JS can be fast. The runtime isn't the bottleneck — the ambition is. Bun decided to be a runtime, a bundler, a package manager, a test runner, and probably a coffee maker. It's mediocre at most of them. `nth` takes the lesson (JS can start fast) and ignores the ego trip (let's replace everything).
+
+The result is something **absurdly well-suited for serverless functions** — tiny binary, single responsibility, cold starts that don't embarrass you.
+
+**The language problem:**
+
+This is where it gets honest. `nth` wants to be written in the fastest language on the planet, and that's a harder question than it sounds:
+
+- **Assembly** — theoretically the ceiling. Practically a nightmare. Bugs don't just crash your program; they corrupt memory and take everything else down with them. Not impossible, just painful in ways that age you.
+- **C++** — the proven choice. Fast, battle-tested, and also boring in a way that makes it hard to stay interested long enough to finish.
+- **Rust** — the obvious modern answer. Bun moved from Zig to Rust, which is precisely why it's less appealing. Following Bun's footsteps defeats the point.
+- **Zig** — interesting, but Bun abandoned it, which at minimum raises questions.
+- **Something else entirely** — the search continues.
+
+The language decision is genuinely open. Speed is non-negotiable. The rest is still being figured out.
+
+> *This will take a while. That's fine. The idea is right.*
+
+---
+
+*Nothing Ecosystem · Ernest Tech House · Kenya · 2026*
