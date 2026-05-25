@@ -112,8 +112,8 @@ export default defineConfig({
             { text: '🚀 Proxy Support', link: '/guide/piggy/proxy-support' },
             { text: '💾 Session Persistence (Opt-in)', link: '/guide/piggy/session-persistence' },
             { text: '🆔 Identity & Profile', link: '/guide/piggy/identity-profile' },
-            { text: '🍪 Cookies Hot Reload', link: '/guide/piggy/cookies-hotreload' },
-            { text: '📝 Full API Reference', link: '/guide/piggy/api-reference' },
+            { text: '🍪 Cookies Hot Reload', link: '/guide/piggy/cookies' },
+            { text: '📝 Full API Reference', link: '/guide/piggy/api-server' },
             { text: '📘 TypeScript Types', link: '/guide/piggy/types' },
             { text: '❓ FAQ', link: '/guide/piggy/faq' }
           ]
@@ -186,7 +186,8 @@ export default defineConfig({
               collapsed: false,
               items: [
                 { text: 'What The Fuck Is Bun?', link: '/blog/bun/whatthefuckisbun' },
-                { text: 'Bun Install: The Truth Nobody Wants to Admit', link: '/blog/bun/buninstallmess' }
+                { text: 'Bun Install: The Truth Nobody Wants to Admit', link: '/blog/bun/buninstallmess' },
+                {text: 'well bun what did you do', link: '/blog/bun/owmygodbun'}
               ]
             },
             {

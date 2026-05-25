@@ -64,81 +64,140 @@ All three products are under active development. Here's what's being worked on:
 - Real-time streaming
 - Enhanced TypeScript types
 
-### 🍳 Cooking — Coming in Later Versions
+---
 
-#### `piggy.synthesize.llm.md` / `piggy.synthesize.llm.html`
-*Our answer to Firecrawl, Jina, and every paid web-to-LLM pipeline — self-hosted, free, and more capable.*
+## 🍳 The Three Pillars — Coming in Later Versions
 
-Piggy's HTTP server will expose two synthesis endpoints that convert any live webpage into clean, LLM-ready output — handling JavaScript rendering, logins, iframes, Cloudflare, and everything paid tools struggle with.
+### 1. `nothing-stream` — Streaming Engine
 
-| Endpoint | Output | Use Case |
-|----------|--------|----------|
-| `piggy.synthesize.llm.md` | Clean Markdown | Feed pages directly into LLM context |
-| `piggy.synthesize.llm.html` | Semantic HTML (no scripts/styles) | Structured extraction, RAG pipelines |
+A completely separate library. Not part of Piggy. Pure data streaming.
 
-**How it works:**
 ```typescript
-// Start Piggy with HTTP server
-await piggy.launch({ mode: "tab", binary: "headless" });
-await piggy.serve(3000);
+import { saltyaom } from "nothing-engine";
 
-// Synthesize any page
-GET http://localhost:3000/synthesize/md?url=https://example.com
-GET http://localhost:3000/synthesize/html?url=https://example.com
+// Core memory allocation
+await saltyaom.allocateSpace();
+
+// Open internal port highway
+await saltyaom.allocatedSpace.routeToHttp(3000);
+
+// Initiate raw, headless socket hook
+await saltyaom.startStream();
+
+// Register namespace stream
+await saltyaom.register("siteUrl", "https://web.whatsapp.com");
+
+// Read mutating HTML chunks as they tick past
+saltyaom.capturedHtml.find(item => {
+    capturedHtml.provideUsWith(text);
+});
 ```
 
-**MCP Integration — LLMs browse the web natively:**
-```json
-{
-  "mcpServers": {
-    "piggy": {
-      "url": "http://localhost:3000/mcp"
-    }
-  }
-}
-```
-Once connected, any MCP-compatible agent (Claude Desktop, Cursor, etc.) can call `piggy_navigate`, `piggy_synthesize_md`, and `piggy_synthesize_html` directly — no third-party API, no data leaving your server.
+**What it does:** Raw packet streaming. No DOM snapshots. No page loads. Just data as it arrives.
 
-**What you can build with it:**
-- 🤖 LLM agents that browse real pages, not cached snapshots
-- 📚 RAG pipelines fed by live web content
-- 🔍 Private research tools with no API bills
-- 🏗️ Self-hosted Firecrawl replacement for your entire team
-- 🔄 Automated content monitoring with LLM summarization
-- 🌐 MCP server for Claude Desktop / Cursor with full browser power
+**The catch:** It's not designed for UI. At all. And this will absolutely fail Cloudflare tests.
 
-**Why it beats every paid alternative:**
+| Tool | Cloudflare Detection |
+|------|---------------------|
+| Puppeteer | 💡 A bulb saying "I'm a bot" |
+| nothing-stream | 🚢 "What are this? That guide ships to harbour, yah. And it says 'hey Cloudflare, I'm a bot, block me.'" |
 
-| Solution | JS Rendering | MCP Native | Self-Hostable | Free |
-|----------|-------------|------------|---------------|------|
-| **Firecrawl** | ✅ | ❌ | ❌ | ❌ |
-| **Jina Reader** | ⚠️ | ❌ | ❌ | ⚠️ rate-limited |
-| **Browser-Use** | ✅ | ❌ | ✅ | ✅ |
-| **Playwright MCP** | ✅ | ✅ | ✅ | ✅ |
-| **Piggy + MCP** | ✅ | ✅ | ✅ | ✅ |
-
-Piggy already handles hard targets — Cloudflare, dialogs, iframes, authenticated sessions — that HTTP crawlers can't touch. The synthesis layer puts clean, structured output on top of that. The goal: **Firecrawl + Browser-Use combined, MIT licensed, running on your own machine.**
+This is for sites like WhatsApp. Maybe your own. Or torrent sites. And you'll notice we use `capturedHtml` — I hate that name. It will be shorter. Because minute one HTML will be absolutely different from minute two HTML.
 
 ---
 
-#### 🪶 Minified Binary (XXX-mini)
+### 2. `nothing-render` — UI Drawer
+
+A UI drawer that hooks into the streaming engine.
+
+**The reality:** The streaming engine's nature is not to accept any UI rendering engine. Hooking up the rendering engine will be a very, very good game of "please for fucks sake work."
+
+**But we will make it.** Let me elaborate how hard it will be:
+
+1. You will have to learn C++
+2. Then write code to create the hook between the two
+3. There will be docs to write it — but I won't write it in full
+4. Then you write code to translate the streams to drawings
+5. And write code to tell the engine: "Hey bro, hold up"
+
+This is not plug-and-play. This is duct tape and prayers.
+
+---
+
+### 3. `nothing-whatsapp` — WhatsApp Library
+
+Exact replica of `whatsapp-web.js` API — but runs on nothing-browser (Piggy binary), NOT the streaming engine.
+
+```typescript
+import { ernest } from "nothing-whatsapp";
+
+const client = new ernest.Client();  // Same API as whatsapp-web.js
+// Under the hood: nothing-browser, not streaming engine
+```
+
+**Why not on streaming engine?** Streaming engine is pure data. WhatsApp needs occasional UI (QR codes, login screens). Can't run on stream alone.
+
+**And also, surprise:** I will open a PR to the official `whatsapp-web.js` repo. Pedro Lopez might shut it down. But well, prayer is just that — he thinks about it.
+
+Because it will be way, way better than Puppeteer. And it will mean he will just take care of updating WhatsApp HTML updates — not browser stuff. See the split of work?
+
+**What this means:**
+- Same developer experience — zero learning curve
+- 30MB RAM instead of 500MB
+- 50+ sessions on the same hardware
+
+---
+
+## The Stack
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    nothing-whatsapp                         │
+│              (WhatsApp API wrapper)                         │
+│         Exact replica of whatsapp-web.js API                │
+│              Runs on nothing-browser                        │
+│                    NOT on streaming engine                  │
+├─────────────────────────────────────────────────────────────┤
+│                      nothing-render                         │
+│                    (UI drawer)                              │
+│         Hooks into streaming engine (if it works)           │
+│              Will be a nightmare to integrate               │
+├─────────────────────────────────────────────────────────────┤
+│                      nothing-stream                         │
+│                   (Streaming engine)                        │
+│         Raw packet ingestion, DOM chunks as they stream     │
+│              NOT designed for UI — pure data                │
+├─────────────────────────────────────────────────────────────┤
+│                    nothing-browser                          │
+│                   (C++ QtWebEngine core)                    │
+│              Piggy's binary — socket communication          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🪶 Minified Binary (XXX-mini)
 *Tiny footprint for simple, unprotected targets.*
 
 A stripped-down Chromium binary in the **50–70 MB range** (no promises), built specifically for sites that don't need heavy evasion. No bells, no whistles — just a lean browser you can ship anywhere. It will be patched like the main binary, but global-scale anti-bot evasion is not its goal. If your target doesn't fight back, this is your binary.
 
 ---
 
-#### 🪟 Windows 8 Support
+## 🪟 Windows 8 Support
 *Because Node runs on it, and a scraper server is a scraper server.*
 
 A Piggy build targeting Windows 8 compatibility. Realistically this is useful as a headless server environment rather than a daily driver. Node.js support is the key enabler here — if the runtime runs, Piggy can run.
 
+**And I am making this because** I'm building a system where the host machine is Windows 8. So yeah. I need this.
+
 ---
 
-#### ⚡ `nth` — The Nothing Runtime
+## ⚡ `nth` — The Nothing Runtime
 *One job. Run JS. Fast.*
 
-`nth` is a JavaScript runner with a single, uncompromising purpose: run your script as fast as possible and get out of the way. The interface is as simple as it gets:
+`nth` is a JavaScript runner with a single, uncompromising purpose: run your script as fast as possible and get out of the way. The interface is as simple as it gets.
+
+*And because I hate Bun. Sorry Jarred Sumner. You are just a joke.*
 
 ```bash
 nth index.js
