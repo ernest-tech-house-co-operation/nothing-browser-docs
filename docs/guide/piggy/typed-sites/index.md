@@ -5,7 +5,7 @@ Get full TypeScript autocomplete for your registered sites. No more guessing wha
 > ⚠️ **Version Requirement:** Binary v0.1.14+ | Library v0.0.21+
 
 ---
-
+## Piggy is now a full js library typesafety is not included sorry for any inconviniences caused ts was just messing up with my build scripts in the near future tyesafety will be brought back but for now i dont think you can use it because her ship 4 plain .js files it has deprecated so sorry for once again typecript is just not my strong suite
 ## Overview
 
 After calling `piggy.register()`, sites are dynamically added to the piggy object. `usePiggy<T>()` gives you type-safe access with full IDE autocomplete.
