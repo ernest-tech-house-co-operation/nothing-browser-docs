@@ -253,9 +253,19 @@ When you run `nth init default`, nth will create an `nth.json` file. Inside, you
 **Important:** Your file name must be unique, or it will crash horribly with an error: "Can't start — found duplicate files."
 
 **The philosophy:** This runtime will be absolutely pluggable — just not overdone. You can't add `marked` capabilities. Nope. `nth` will make sure your CPU is utilized for that specific task.
+ i have been thinking what nth will be and am geting ideas imagine sth like nth index.js together main.py yah it runs js and then calls up python like cocurent kinda thing but it just calls the language runner you can to nth -1 index.js -success -2 main.js -sucess main.ts ths one first runs the-1 code if it fails t stops if it suceeds runs the -2 and it goes on like that then nth will heavily depend on already availablethings ather than runtmes the nthconfig.jsn will look something like 
+ nth config {
+    package-manager; pnpm:
+    tester; vitetest:
+    testscript:"your vitetestscript";
+    nthbuild :true;
+    nthbuildservice: node/bun;
 
----
+ }
+ nthbuild is basaically telling a complex runtime like nodeto run your code but spit out machine language of c++ code whatever the engine releases then it produces one file for yourserver what i mean here is i am thinking this way when you run node index.js the node engine jv8 or whatever compiles your code to machine language or sth i honestly dont know but imagine how servers will love such code that the engine has outputted imagine runing nth build node index.js and then we grab the code the engine releases i have noidea what langit will be but what i know is servers will love it mybe it might not be a great idea but i will try it trust me and all this additions like the --on--success(-sucess) will be plugins ou add to nth nth is a runtime the juices you run nth add plugin on-sucess and t downloads it for you
 
+ and i was sitting just yesterday and i thought what makes brave firefox trustable to sighninwithgoogle button i thought those browsers release specific binaries and google is just being a bitch so i thought nothing-lion(cant use brave you know why), nothing-camera(chrome), nothing-fire(firefox) this are just your "google trusted browser" with pigg comiled in it just think of the level of cloudflare will hate me i mean come on damn it right and when you use nth as your runtime to install them is basically nth replace nth-browser --with nothing-fire(firefox browser) 
+this browsers will just have the exact same ui everything same as your normal browser but it will have piggy in it like when you use nothing-browser to scrape you can just swtch to nthing-camera and use chrome to browse and i think that is the best because you can use it normally and gain a reputation score with google then use it for scraping 
 ## The Stack
 
 ```

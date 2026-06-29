@@ -139,6 +139,13 @@ export default defineConfig({
           ]
         },
         {
+          text: 'cppws',
+          collapsed: true,
+          items: [
+            { text: 'What cppws', link: '/guide/cppws/cppws' },
+          ]
+        },
+        {
           text: 'Legal',
           collapsed: true,
           items: [
@@ -204,7 +211,8 @@ export default defineConfig({
               text: 'Piggy Series',
               collapsed: false,
               items: [
-                { text: 'How What Where', link: '/blog/piggy/howwhatwhere' }
+                { text: 'How What Where', link: '/blog/piggy/howwhatwhere' },
+                { text: 'Great news from us', link: '/blog/piggy/somegreatnews' }
               ]
             }
           ]
